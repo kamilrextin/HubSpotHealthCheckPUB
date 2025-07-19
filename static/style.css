@@ -1,0 +1,263 @@
+/* Custom styles for HubSpot Audit Tool */
+
+/* Grade color coding */
+.grade-a {
+    color: #059669; /* Green for excellent */
+}
+
+.grade-b {
+    color: #3B82F6; /* Blue for good */
+}
+
+.grade-c {
+    color: #F59E0B; /* Yellow for fair */
+}
+
+.grade-d {
+    color: #EF4444; /* Red for needs improvement */
+}
+
+.grade-f {
+    color: #DC2626; /* Dark red for critical */
+}
+
+/* Smooth transitions */
+.transition-colors {
+    transition: color 0.2s ease-in-out;
+}
+
+/* Custom button hover effects */
+.btn-primary {
+    background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1D4ED8, #1E40AF);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Card hover effects */
+.card-hover {
+    transition: all 0.2s ease-in-out;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Progress bars for scores */
+.score-bar {
+    height: 8px;
+    background: #E5E7EB;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.score-fill {
+    height: 100%;
+    transition: width 0.5s ease-in-out;
+}
+
+.score-fill.excellent {
+    background: linear-gradient(90deg, #10B981, #059669);
+}
+
+.score-fill.good {
+    background: linear-gradient(90deg, #3B82F6, #2563EB);
+}
+
+.score-fill.fair {
+    background: linear-gradient(90deg, #F59E0B, #D97706);
+}
+
+.score-fill.poor {
+    background: linear-gradient(90deg, #EF4444, #DC2626);
+}
+
+/* Alert animations */
+.alert {
+    animation: slideInDown 0.3s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Loading spinner */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3B82F6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Responsive text sizing */
+@media (max-width: 640px) {
+    .text-4xl {
+        font-size: 2.25rem;
+        line-height: 2.5rem;
+    }
+    
+    .text-6xl {
+        font-size: 3rem;
+        line-height: 1;
+    }
+}
+
+/* Focus states for accessibility */
+.focus\:ring-blue-500:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+/* Print styles for PDF-like view */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+    }
+    
+    .bg-gradient-to-r {
+        background: #3B82F6 !important;
+        color: white !important;
+    }
+}
+
+/* Custom utility classes */
+.text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.backdrop-blur {
+    backdrop-filter: blur(10px);
+}
+
+/* Animation classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.slide-up {
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Dashboard specific styles */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Metric display improvements */
+.metric-value {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Status indicators */
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.status-excellent {
+    background-color: #10B981;
+}
+
+.status-good {
+    background-color: #3B82F6;
+}
+
+.status-fair {
+    background-color: #F59E0B;
+}
+
+.status-poor {
+    background-color: #EF4444;
+}
+
+/* Tooltip styles */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: #1F2937;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 14px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}

@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}HubSpot Marketing Operations Audit{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <!-- Hero Section -->
+    <div class="mb-12">
+        <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            Audit Your HubSpot
+            <span class="text-blue-600">Marketing Operations</span>
+        </h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+            Get a comprehensive analysis of your HubSpot setup with actionable insights 
+            to optimize your marketing operations, improve efficiency, and drive better results.
+        </p>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="grid md:grid-cols-3 gap-8 mb-12">
+        <div class="bg-white p-6 rounded-lg shadow-sm border">
+            <div class="text-blue-600 text-3xl mb-4">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">Secure OAuth Integration</h3>
+            <p class="text-gray-600">
+                Safely connect to your HubSpot instance using industry-standard OAuth 2.0 authentication.
+            </p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border">
+            <div class="text-green-600 text-3xl mb-4">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">Comprehensive Analysis</h3>
+            <p class="text-gray-600">
+                Audit 6 key areas: Admin Setup, Properties, Workflows, Forms, Reporting, and Sales.
+            </p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border">
+            <div class="text-purple-600 text-3xl mb-4">
+                <i class="bi bi-file-earmark-pdf"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">Professional Reports</h3>
+            <p class="text-gray-600">
+                Export detailed PDF reports with scores, recommendations, and action items.
+            </p>
+        </div>
+    </div>
+
+    <!-- What We Audit Section -->
+    <div class="bg-white rounded-lg shadow-sm border p-8 mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-8">What We Audit</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+            <div class="space-y-2">
+                <h3 class="font-semibold text-lg text-blue-600">
+                    <i class="bi bi-people mr-2"></i>Admin & Setup
+                </h3>
+                <ul class="text-gray-600 space-y-1">
+                    <li>• User management</li>
+                    <li>• Super admin permissions</li>
+                    <li>• Active integrations</li>
+                </ul>
+            </div>
+            
+            <div class="space-y-2">
+                <h3 class="font-semibold text-lg text-green-600">
+                    <i class="bi bi-tags mr-2"></i>Properties
+                </h3>
+                <ul class="text-gray-600 space-y-1">
+                    <li>• Custom property usage</li>
+                    <li>• Unused properties</li>
+                    <li>• Data quality</li>
+                </ul>
+            </div>
+            
+            <div class="space-y-2">
+                <h3 class="font-semibold text-lg text-purple-600">
+                    <i class="bi bi-arrow-repeat mr-2"></i>Workflows
+                </h3>
+                <ul class="text-gray-600 space-y-1">
+                    <li>• Automation coverage</li>
+                    <li>• Inactive workflows</li>
+                    <li>• Redundant processes</li>
+                </ul>
+            </div>
+            
+            <div class="space-y-2">
+                <h3 class="font-semibold text-lg text-orange-600">
+                    <i class="bi bi-clipboard mr-2"></i>Forms
+                </h3>
+                <ul class="text-gray-600 space-y-1">
+                    <li>• Form optimization</li>
+                    <li>• Embedding status</li>
+                    <li>• Lead capture efficiency</li>
+                </ul>
+            </div>
+            
+            <div class="space-y-2">
+                <h3 class="font-semibold text-lg text-red-600">
+                    <i class="bi bi-bar-chart mr-2"></i>Reporting
+                </h3>
+                <ul class="text-gray-600 space-y-1">
+                    <li>• Dashboard setup</li>
+                    <li>• Custom reports</li>
+                    <li>• Performance tracking</li>
+                </ul>
+            </div>
+            
+            <div class="space-y-2">
+                <h3 class="font-semibold text-lg text-indigo-600">
+                    <i class="bi bi-currency-dollar mr-2"></i>Sales
+                </h3>
+                <ul class="text-gray-600 space-y-1">
+                    <li>• Pipeline configuration</li>
+                    <li>• Deal management</li>
+                    <li>• Lifecycle stages</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-8 text-white">
+        <h2 class="text-3xl font-bold mb-4">Ready to Optimize Your HubSpot?</h2>
+        <p class="text-xl mb-8 opacity-90">
+            Connect your HubSpot account and get your comprehensive audit report in minutes.
+        </p>
+        
+        {% if session.get('hubspot_token') %}
+            <a href="{{ url_for('run_audit') }}" 
+               class="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition duration-200">
+                <i class="bi bi-speedometer2 mr-2"></i>
+                View Your Audit Results
+            </a>
+        {% else %}
+            <a href="{{ url_for('oauth_authorize') }}" 
+               class="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition duration-200">
+                <i class="bi bi-link-45deg mr-2"></i>
+                Connect HubSpot & Start Audit
+            </a>
+        {% endif %}
+        
+        <div class="mt-6 text-sm opacity-75">
+            <i class="bi bi-shield-check mr-1"></i>
+            Secure OAuth connection • No data stored • GDPR compliant
+        </div>
+    </div>
+
+    <!-- Trust Indicators -->
+    <div class="mt-12 text-center">
+        <p class="text-gray-600 mb-4">Trusted by marketing operations professionals</p>
+        <div class="flex justify-center items-center space-x-8 opacity-60">
+            <span class="text-2xl">🔒</span>
+            <span class="text-2xl">⚡</span>
+            <span class="text-2xl">📊</span>
+            <span class="text-2xl">🎯</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

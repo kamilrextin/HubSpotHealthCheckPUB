@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Results - HubSpot Audit Tool{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="text-center">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Your HubSpot Audit Results</h1>
+        <p class="text-xl text-gray-600">Comprehensive analysis of your marketing operations setup</p>
+    </div>
+
+    <!-- Overall Score Card -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-8 text-white text-center">
+        <h2 class="text-2xl font-semibold mb-4">Overall Assessment</h2>
+        <div class="flex justify-center items-center space-x-8">
+            <div>
+                <div class="text-5xl font-bold">{{ results.overall_score }}</div>
+                <div class="text-lg opacity-90">out of 5.0</div>
+            </div>
+            <div>
+                <div class="text-6xl font-bold grade-{{ results.overall_grade.lower() }}">{{ results.overall_grade }}</div>
+                <div class="text-lg opacity-90">Grade</div>
+            </div>
+        </div>
+        <div class="mt-6">
+            <a href="{{ url_for('export_pdf') }}" 
+               class="inline-flex items-center px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition duration-200">
+                <i class="bi bi-download mr-2"></i>
+                Download PDF Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Category Results Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% set categories = [
+            ('admin', 'Admin & Setup', 'bi-people', 'blue'),
+            ('properties', 'Properties', 'bi-tags', 'green'),
+            ('workflows', 'Workflows', 'bi-arrow-repeat', 'purple'),
+            ('forms', 'Forms', 'bi-clipboard', 'orange'),
+            ('reporting', 'Reporting', 'bi-bar-chart', 'red'),
+            ('sales', 'Sales', 'bi-currency-dollar', 'indigo')
+        ] %}
+        
+        {% for category_key, category_name, icon, color in categories %}
+            {% set category_data = results.get(category_key, {}) %}
+            <div class="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition duration-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <i class="{{ icon }} text-2xl text-{{ color }}-600"></i>
+                        <h3 class="text-lg font-semibold text-gray-900">{{ category_name }}</h3>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-bold grade-{{ category_data.get('grade', 'f').lower() }}">
+                            {{ category_data.get('grade', 'F') }}
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            {{ category_data.get('score', 0) }}/5.0
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Metrics -->
+                {% if category_data.get('metrics') %}
+                <div class="space-y-2 mb-4">
+                    <h4 class="text-sm font-medium text-gray-700">Key Metrics:</h4>
+                    {% for key, value in category_data.metrics.items() %}
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">{{ key.replace('_', ' ').title() }}:</span>
+                            <span class="font-medium">{{ value }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Critical Issues -->
+                {% if category_data.get('critical_issues') %}
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium text-red-700 mb-2">
+                        <i class="bi bi-exclamation-triangle mr-1"></i>Critical Issues:
+                    </h4>
+                    {% for issue in category_data.critical_issues %}
+                        <div class="text-sm text-red-600 bg-red-50 p-2 rounded mb-1">
+                            {{ issue }}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Recommendations -->
+                {% if category_data.get('recommendations') %}
+                <div>
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">
+                        <i class="bi bi-lightbulb mr-1"></i>Recommendations:
+                    </h4>
+                    {% for recommendation in category_data.recommendations %}
+                        <div class="text-sm text-gray-600 bg-gray-50 p-2 rounded mb-1">
+                            • {{ recommendation }}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Action Items Summary -->
+    <div class="bg-white rounded-lg shadow-sm border p-8">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6">
+            <i class="bi bi-clipboard-check mr-2 text-blue-600"></i>
+            Next Steps & Action Items
+        </h2>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- High Priority -->
+            <div>
+                <h3 class="text-lg font-semibold text-red-600 mb-4">
+                    <i class="bi bi-exclamation-triangle mr-2"></i>High Priority
+                </h3>
+                <div class="space-y-3">
+                    {% for category_key, category_data in results.items() %}
+                        {% if category_data is mapping and category_data.get('critical_issues') %}
+                            {% for issue in category_data.critical_issues %}
+                                <div class="p-3 bg-red-50 border-l-4 border-red-400 rounded">
+                                    <div class="text-sm font-medium text-red-800">
+                                        {{ category_key.replace('_', ' ').title() }}: {{ issue }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Quick Wins -->
+            <div>
+                <h3 class="text-lg font-semibold text-green-600 mb-4">
+                    <i class="bi bi-check-circle mr-2"></i>Quick Wins
+                </h3>
+                <div class="space-y-3">
+                    {% for category_key, category_data in results.items() %}
+                        {% if category_data is mapping and category_data.get('recommendations') %}
+                            {% for recommendation in category_data.recommendations[:2] %}
+                                <div class="p-3 bg-green-50 border-l-4 border-green-400 rounded">
+                                    <div class="text-sm font-medium text-green-800">
+                                        {{ category_key.replace('_', ' ').title() }}: {{ recommendation }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg p-8 text-white text-center">
+        <h2 class="text-2xl font-semibold mb-4">Need Help Implementing These Changes?</h2>
+        <p class="text-lg mb-6 opacity-90">
+            Our HubSpot experts can help you optimize your setup and implement best practices.
+        </p>
+        <div class="space-x-4">
+            <a href="#" class="inline-flex items-center px-6 py-3 bg-white text-purple-600 font-semibold rounded-lg hover:bg-gray-100 transition duration-200">
+                <i class="bi bi-calendar mr-2"></i>
+                Book a Strategy Call
+            </a>
+            <a href="#" class="inline-flex items-center px-6 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-purple-600 transition duration-200">
+                <i class="bi bi-book mr-2"></i>
+                View Documentation
+            </a>
+        </div>
+    </div>
+
+    <!-- Actions Bar -->
+    <div class="flex justify-center space-x-4">
+        <a href="{{ url_for('index') }}" 
+           class="inline-flex items-center px-6 py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition duration-200">
+            <i class="bi bi-arrow-left mr-2"></i>
+            Run New Audit
+        </a>
+        <a href="{{ url_for('export_pdf') }}" 
+           class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200">
+            <i class="bi bi-download mr-2"></i>
+            Download Report
+        </a>
+    </div>
+</div>
+{% endblock %}
