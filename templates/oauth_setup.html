@@ -46,13 +46,20 @@
                     <div class="space-y-4">
                         <div>
                             <h4 class="font-medium text-gray-900 mb-2">Set Redirect URL:</h4>
-                            <div class="bg-gray-100 p-3 rounded-lg font-mono text-sm">
-                                https://workspace.kamilrextin.replit.app/oauth/callback
+                            <div class="space-y-2">
+                                <div class="bg-gray-100 p-3 rounded-lg font-mono text-sm">
+                                    <strong>Development:</strong> https://workspace.kamilrextin.replit.app/oauth/callback
+                                </div>
+                                <div class="bg-blue-100 p-3 rounded-lg font-mono text-sm">
+                                    <strong>Production:</strong> https://your-app-name.replit.app/oauth/callback
+                                </div>
                             </div>
-                            <p class="text-sm text-gray-600 mt-1">Copy this exact URL into your app's redirect URL field</p>
+                            <p class="text-sm text-gray-600 mt-1">
+                                Use the development URL for testing. For production, replace "your-app-name" with your actual deployment name.
+                            </p>
                             <div class="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                 <p class="text-sm text-yellow-800">
-                                    <strong>Chrome Privacy Warning Fix:</strong> If Chrome shows a privacy error, click "Advanced" → "Proceed to workspace.kamilrextin.replit.app (unsafe)" or type "thisisunsafe" while on the error page.
+                                    <strong>Chrome Privacy Warning Fix:</strong> If Chrome shows a privacy error, click "Advanced" → "Proceed" or type "thisisunsafe" while on the error page.
                                 </p>
                             </div>
                         </div>
