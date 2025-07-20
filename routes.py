@@ -41,16 +41,24 @@ def oauth_authorize():
     """Redirect to HubSpot OAuth authorization"""
     try:
         # Check if OAuth credentials are configured
-        if not app.config.get('HUBSPOT_CLIENT_ID') or not app.config.get('HUBSPOT_CLIENT_SECRET'):
+        client_id = app.config.get('HUBSPOT_CLIENT_ID')
+        client_secret = app.config.get('HUBSPOT_CLIENT_SECRET')
+        
+        logging.debug(f"OAuth authorize called - Client ID exists: {bool(client_id)}, Client Secret exists: {bool(client_secret)}")
+        
+        if not client_id or not client_secret:
             flash('OAuth is not configured. Please set up your HubSpot app credentials first.', 'error')
             return redirect(url_for('oauth_setup'))
         
         hubspot = HubSpotService()
         auth_url = hubspot.get_authorization_url()
+        
+        logging.debug(f"Generated auth URL: {auth_url}")
+        
         return redirect(auth_url)
     except Exception as e:
         logging.error(f"OAuth authorization error: {str(e)}")
-        flash('Error initiating HubSpot authentication. Please check your app configuration.', 'error')
+        flash(f'Error initiating HubSpot authentication: {str(e)}', 'error')
         return redirect(url_for('oauth_setup'))
 
 @app.route('/oauth/callback')
@@ -61,8 +69,9 @@ def oauth_callback():
         error = request.args.get('error')
         
         if error:
-            logging.error(f"OAuth error: {error}")
-            flash(f'HubSpot authentication failed: {error}', 'error')
+            error_description = request.args.get('error_description', 'No description provided')
+            logging.error(f"OAuth error: {error} - {error_description}")
+            flash(f'HubSpot authentication failed: {error}. {error_description}', 'error')
             return redirect(url_for('index'))
         
         if not code:
