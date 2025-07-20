@@ -82,12 +82,34 @@ class AuditEngine:
             super_admins = [user for user in users if user.get('superAdmin', False)]
             active_integrations = [integ for integ in integrations if integ.get('enabled', False)]
             
+            # Prepare detailed data for UI display
+            users_list = []
+            for user in users[:20]:  # Limit to 20 users for display
+                users_list.append({
+                    'firstName': user.get('firstName', ''),
+                    'lastName': user.get('lastName', ''),
+                    'email': user.get('email', ''),
+                    'superAdmin': user.get('superAdmin', False),
+                    'lastLogin': user.get('lastLoginAt', '').split('T')[0] if user.get('lastLoginAt') else None
+                })
+            
+            integrations_list = []
+            for integration in integrations[:15]:  # Limit to 15 integrations
+                integrations_list.append({
+                    'name': integration.get('name', 'Unknown Integration'),
+                    'type': integration.get('integrationType', 'Unknown'),
+                    'lastUpdated': integration.get('lastUpdated', '').split('T')[0] if integration.get('lastUpdated') else None
+                })
+
             metrics = {
                 'total_users': total_users,
                 'super_admins_count': len(super_admins),
                 'active_integrations_count': len(active_integrations),
+                'total_integrations': len(integrations),
                 'super_admin_names': [admin.get('email', 'Unknown') for admin in super_admins],
-                'integration_names': [integ.get('name', 'Unknown') for integ in active_integrations]
+                'integration_names': [integ.get('name', 'Unknown') for integ in active_integrations],
+                'users_list': users_list,
+                'integrations_list': integrations_list
             }
             
             score = self._calculate_admin_score(metrics)
@@ -201,11 +223,24 @@ class AuditEngine:
             # Handle different workflow status fields (enabled, isEnabled, status)
             active_workflows = []
             inactive_workflows = []
+            workflows_details = []
             
             for wf in workflows:
                 is_active = (wf.get('enabled', False) or 
                            wf.get('isEnabled', False) or 
                            wf.get('status', '').lower() == 'enabled')
+                
+                # Create detailed workflow entry for UI
+                workflow_detail = {
+                    'name': wf.get('name', 'Unknown Workflow'),
+                    'id': wf.get('id'),
+                    'type': wf.get('type', 'workflow'),
+                    'enabled': is_active,
+                    'created_date': wf.get('createdAt', '').split('T')[0] if wf.get('createdAt') else 'Unknown',
+                    'actions': wf.get('actions', [])[:5]  # Limit to first 5 actions for display
+                }
+                workflows_details.append(workflow_detail)
+                
                 if is_active:
                     active_workflows.append(wf)
                 else:
@@ -224,7 +259,8 @@ class AuditEngine:
                 'inactive_workflows': len(inactive_workflows),
                 'inactive_percentage': round(inactive_percentage, 1),
                 'potentially_redundant': len(potentially_redundant),
-                'inactive_workflow_details': [{'name': wf.get('name', 'Unknown'), 'type': wf.get('type', 'workflow')} for wf in inactive_workflows[:10]]
+                'inactive_workflow_details': [{'name': wf.get('name', 'Unknown'), 'type': wf.get('type', 'workflow')} for wf in inactive_workflows[:10]],
+                'workflows_details': workflows_details
             }
             
             score = self._calculate_workflows_score(metrics)
@@ -270,6 +306,8 @@ class AuditEngine:
             # Enhanced usage analysis - check form submissions over last 30 days
             forms_with_submissions = []
             forms_without_submissions = []
+            forms_details = []
+            total_submissions_30d = 0
             total_submissions_checked = 0
             
             # Sample up to 10 forms for submission analysis (to avoid API rate limits)
@@ -280,7 +318,29 @@ class AuditEngine:
                 if form_id:
                     submission_data = self.hubspot.get_form_submissions(form_id, days_back=30)
                     submissions_count = submission_data.get('submissions_count', 0)
+                    total_submissions_30d += submissions_count
                     total_submissions_checked += 1
+                    
+                    # Extract form fields for display
+                    form_fields = []
+                    for field_group in form.get('formFieldGroups', []):
+                        for field in field_group.get('fields', []):
+                            form_fields.append({
+                                'label': field.get('label', field.get('name', 'Unknown Field')),
+                                'fieldType': field.get('fieldType', 'text'),
+                                'required': field.get('required', False)
+                            })
+                    
+                    # Create detailed form entry for UI display
+                    form_detail = {
+                        'name': form.get('name', 'Unknown Form'),
+                        'guid': form_id,
+                        'is_embedded': form.get('isPublished', False),
+                        'submissions_30d': submissions_count,
+                        'created_date': form.get('createdAt', '').split('T')[0] if form.get('createdAt') else 'Unknown',
+                        'fields': form_fields
+                    }
+                    forms_details.append(form_detail)
                     
                     if submissions_count > 0:
                         forms_with_submissions.append({
@@ -303,14 +363,17 @@ class AuditEngine:
                 'unembedded_percentage': round(unembedded_percentage, 1),
                 'forms_with_recent_submissions': len(forms_with_submissions),
                 'forms_without_submissions': len(forms_without_submissions),
+                'unused_forms_count': len(forms_without_submissions),
                 'unused_forms_percentage': round(unused_forms_percentage, 1),
+                'total_submissions_30d': total_submissions_30d,
                 'common_fields_count': len(field_analysis.get('common_fields', [])),
                 'total_unique_fields': field_analysis.get('total_unique_fields', 0),
                 'forms_analyzed_for_usage': total_submissions_checked,
                 # Add detailed lists for better UI display
                 'unused_forms_list': forms_without_submissions,
                 'active_forms_list': [f['name'] for f in forms_with_submissions],
-                'common_fields_details': field_analysis.get('common_fields', [])
+                'common_fields_details': field_analysis.get('common_fields', []),
+                'forms_details': forms_details
             }
             
             score = self._calculate_forms_score(metrics)

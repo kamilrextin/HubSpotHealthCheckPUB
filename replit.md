@@ -18,6 +18,15 @@ Preferred communication style: Simple, everyday language.
 - **Improved Recommendations**: Provides specific actionable advice based on usage patterns
 - **Critical Issue Detection**: Flags forms with zero submissions and major lead capture failures
 
+### Enhanced Section-by-Section Reporting (July 20, 2025)
+- **Detailed Data Display**: Replaced raw JSON with structured, readable sections for each audit category
+- **Interactive Expandable Sections**: Users can expand/collapse detailed views for Admin, Forms, Workflows, Properties
+- **Rich Form Analytics**: Shows individual form performance, field details, submission rates, and unused form alerts
+- **Comprehensive Workflow Display**: Details workflow actions, status, creation dates, and inactive workflow warnings  
+- **Property Management Insights**: Lists unused properties with creation dates and types for better cleanup decisions
+- **User-Friendly Tables**: Professional data tables with proper formatting, status indicators, and visual hierarchy
+- **Actionable Visual Cues**: Color-coded alerts for critical issues like zero-submission forms and inactive workflows
+
 ### OAuth Authentication Enhancement
 - Successfully implemented OAuth "Login with HubSpot" authentication
 - Fixed scope configuration issues by matching exact HubSpot API requirements

@@ -1,0 +1,336 @@
+<!-- Detailed Section-by-Section Report Display -->
+
+<!-- Admin & Setup Detailed Section -->
+{% if results.admin %}
+<div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+    <div class="flex items-center justify-between mb-4 cursor-pointer" onclick="toggleSection('admin-details')">
+        <div class="flex items-center">
+            <i class="bi bi-people text-2xl text-blue-600 mr-3"></i>
+            <h2 class="text-xl font-bold text-gray-900">Admin & User Management</h2>
+            <span class="ml-3 px-3 py-1 rounded-full text-sm font-medium grade-{{ results.admin.grade.lower() }}-bg grade-{{ results.admin.grade.lower() }}-text">
+                {{ results.admin.grade }}
+            </span>
+        </div>
+        <i class="bi bi-chevron-down transform transition-transform" id="admin-chevron"></i>
+    </div>
+    
+    <div id="admin-details" class="space-y-4">
+        <!-- Users Table -->
+        {% if results.admin.metrics.users_list %}
+        <div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">User Accounts ({{ results.admin.metrics.total_users }})</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Name</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Email</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Role</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Last Login</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for user in results.admin.metrics.users_list[:10] %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2 text-sm text-gray-900">{{ user.firstName }} {{ user.lastName }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-600">{{ user.email }}</td>
+                            <td class="px-4 py-2">
+                                <span class="px-2 py-1 text-xs rounded-full {% if user.superAdmin %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                                    {% if user.superAdmin %}Super Admin{% else %}User{% endif %}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2 text-sm text-gray-600">{{ user.lastLogin or 'Never' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Integrations -->
+        {% if results.admin.metrics.integrations_list %}
+        <div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Active Integrations ({{ results.admin.metrics.total_integrations }})</h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for integration in results.admin.metrics.integrations_list %}
+                <div class="bg-gray-50 p-4 rounded-lg border">
+                    <div class="flex items-center mb-2">
+                        <i class="bi bi-link-45deg text-green-600 mr-2"></i>
+                        <span class="font-medium text-gray-900">{{ integration.name }}</span>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <div>Type: {{ integration.type }}</div>
+                        {% if integration.lastUpdated %}
+                        <div>Updated: {{ integration.lastUpdated }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Forms Detailed Section -->
+{% if results.forms %}
+<div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+    <div class="flex items-center justify-between mb-4 cursor-pointer" onclick="toggleSection('forms-details')">
+        <div class="flex items-center">
+            <i class="bi bi-ui-checks text-2xl text-green-600 mr-3"></i>
+            <h2 class="text-xl font-bold text-gray-900">Forms & Lead Capture</h2>
+            <span class="ml-3 px-3 py-1 rounded-full text-sm font-medium grade-{{ results.forms.grade.lower() }}-bg grade-{{ results.forms.grade.lower() }}-text">
+                {{ results.forms.grade }}
+            </span>
+        </div>
+        <i class="bi bi-chevron-down transform transition-transform" id="forms-chevron"></i>
+    </div>
+    
+    <div id="forms-details" class="space-y-6">
+        <!-- Forms Overview -->
+        <div class="grid md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ results.forms.metrics.total_forms }}</div>
+                <div class="text-sm text-gray-600">Total Forms</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600">{{ results.forms.metrics.embedded_forms }}</div>
+                <div class="text-sm text-gray-600">Embedded</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-orange-600">{{ results.forms.metrics.unused_forms_count }}</div>
+                <div class="text-sm text-gray-600">Unused (30d)</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600">{{ results.forms.metrics.total_submissions_30d }}</div>
+                <div class="text-sm text-gray-600">Submissions</div>
+            </div>
+        </div>
+        
+        <!-- Individual Forms -->
+        {% if results.forms.metrics.forms_details %}
+        <div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Form Performance Details</h3>
+            <div class="space-y-3">
+                {% for form in results.forms.metrics.forms_details %}
+                <div class="border rounded-lg p-4 {% if form.submissions_30d == 0 %}border-red-200 bg-red-50{% else %}border-gray-200{% endif %}">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h4 class="font-medium text-gray-900">{{ form.name }}</h4>
+                            <div class="text-sm text-gray-600">
+                                Created: {{ form.created_date }} | 
+                                Status: <span class="{% if form.is_embedded %}text-green-600{% else %}text-orange-600{% endif %}">
+                                    {% if form.is_embedded %}Embedded{% else %}Not Embedded{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold {% if form.submissions_30d == 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                                {{ form.submissions_30d }}
+                            </div>
+                            <div class="text-xs text-gray-500">30d submissions</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Fields -->
+                    {% if form.fields %}
+                    <div>
+                        <h5 class="text-sm font-medium text-gray-700 mb-2">Form Fields ({{ form.fields|length }}):</h5>
+                        <div class="flex flex-wrap gap-2">
+                            {% for field in form.fields %}
+                            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                                {{ field.label }} ({{ field.fieldType }})
+                                {% if field.required %}<span class="text-red-500">*</span>{% endif %}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if form.submissions_30d == 0 %}
+                    <div class="mt-3 p-2 bg-red-100 border border-red-200 rounded text-sm text-red-800">
+                        <i class="bi bi-exclamation-triangle mr-1"></i>
+                        This form hasn't received any submissions in the last 30 days. Consider reviewing its placement or removing if unused.
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Workflows Detailed Section -->
+{% if results.workflows %}
+<div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+    <div class="flex items-center justify-between mb-4 cursor-pointer" onclick="toggleSection('workflows-details')">
+        <div class="flex items-center">
+            <i class="bi bi-diagram-2 text-2xl text-purple-600 mr-3"></i>
+            <h2 class="text-xl font-bold text-gray-900">Workflows & Automation</h2>
+            <span class="ml-3 px-3 py-1 rounded-full text-sm font-medium grade-{{ results.workflows.grade.lower() }}-bg grade-{{ results.workflows.grade.lower() }}-text">
+                {{ results.workflows.grade }}
+            </span>
+        </div>
+        <i class="bi bi-chevron-down transform transition-transform" id="workflows-chevron"></i>
+    </div>
+    
+    <div id="workflows-details" class="space-y-6">
+        <!-- Workflow Overview -->
+        <div class="grid md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ results.workflows.metrics.total_workflows }}</div>
+                <div class="text-sm text-gray-600">Total Workflows</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600">{{ results.workflows.metrics.active_workflows }}</div>
+                <div class="text-sm text-gray-600">Active</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600">{{ results.workflows.metrics.inactive_workflows }}</div>
+                <div class="text-sm text-gray-600">Inactive</div>
+            </div>
+        </div>
+        
+        <!-- Individual Workflows -->
+        {% if results.workflows.metrics.workflows_details %}
+        <div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Workflow Details</h3>
+            <div class="space-y-3">
+                {% for workflow in results.workflows.metrics.workflows_details %}
+                <div class="border rounded-lg p-4 {% if not workflow.enabled %}border-red-200 bg-red-50{% else %}border-gray-200{% endif %}">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h4 class="font-medium text-gray-900">{{ workflow.name }}</h4>
+                            <div class="text-sm text-gray-600">
+                                Type: {{ workflow.type }} | 
+                                Created: {{ workflow.created_date }}
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="px-2 py-1 text-xs rounded-full {% if workflow.enabled %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {% if workflow.enabled %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Workflow Actions -->
+                    {% if workflow.actions %}
+                    <div>
+                        <h5 class="text-sm font-medium text-gray-700 mb-2">Actions ({{ workflow.actions|length }}):</h5>
+                        <div class="space-y-1">
+                            {% for action in workflow.actions[:5] %}
+                            <div class="text-sm text-gray-600 bg-gray-100 p-2 rounded">
+                                <span class="font-medium">{{ action.type }}:</span> {{ action.description }}
+                            </div>
+                            {% endfor %}
+                            {% if workflow.actions|length > 5 %}
+                            <div class="text-sm text-gray-500">... and {{ workflow.actions|length - 5 }} more actions</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if not workflow.enabled %}
+                    <div class="mt-3 p-2 bg-red-100 border border-red-200 rounded text-sm text-red-800">
+                        <i class="bi bi-pause-circle mr-1"></i>
+                        This workflow is currently inactive and not processing contacts.
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Properties Detailed Section -->
+{% if results.properties %}
+<div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+    <div class="flex items-center justify-between mb-4 cursor-pointer" onclick="toggleSection('properties-details')">
+        <div class="flex items-center">
+            <i class="bi bi-tags text-2xl text-orange-600 mr-3"></i>
+            <h2 class="text-xl font-bold text-gray-900">Properties & Data Structure</h2>
+            <span class="ml-3 px-3 py-1 rounded-full text-sm font-medium grade-{{ results.properties.grade.lower() }}-bg grade-{{ results.properties.grade.lower() }}-text">
+                {{ results.properties.grade }}
+            </span>
+        </div>
+        <i class="bi bi-chevron-down transform transition-transform" id="properties-chevron"></i>
+    </div>
+    
+    <div id="properties-details" class="space-y-6">
+        <!-- Properties Overview -->
+        <div class="grid md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ results.properties.metrics.total_properties }}</div>
+                <div class="text-sm text-gray-600">Total Properties</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600">{{ results.properties.metrics.custom_properties }}</div>
+                <div class="text-sm text-gray-600">Custom</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600">{{ results.properties.metrics.unused_properties }}</div>
+                <div class="text-sm text-gray-600">Unused</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-orange-600">{{ results.properties.metrics.unused_percentage }}%</div>
+                <div class="text-sm text-gray-600">Unused Rate</div>
+            </div>
+        </div>
+        
+        <!-- Unused Properties -->
+        {% if results.properties.metrics.unused_properties_list %}
+        <div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Unused Properties ({{ results.properties.metrics.unused_properties_list|length }})</h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {% for property in results.properties.metrics.unused_properties_list[:12] %}
+                <div class="bg-red-50 border border-red-200 p-3 rounded-lg">
+                    <div class="font-medium text-red-800">{{ property.name }}</div>
+                    <div class="text-sm text-red-600">{{ property.type }} | Created: {{ property.created }}</div>
+                </div>
+                {% endfor %}
+                {% if results.properties.metrics.unused_properties_list|length > 12 %}
+                <div class="bg-gray-50 border border-gray-200 p-3 rounded-lg flex items-center justify-center text-gray-600">
+                    +{{ results.properties.metrics.unused_properties_list|length - 12 }} more unused properties
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<script>
+function toggleSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    const chevron = document.getElementById(sectionId.replace('-details', '-chevron'));
+    
+    if (section.style.display === 'none' || section.style.display === '') {
+        section.style.display = 'block';
+        chevron.classList.add('rotate-180');
+    } else {
+        section.style.display = 'none';
+        chevron.classList.remove('rotate-180');
+    }
+}
+
+// Initialize all sections as expanded
+document.addEventListener('DOMContentLoaded', function() {
+    const detailSections = ['admin-details', 'forms-details', 'workflows-details', 'properties-details'];
+    detailSections.forEach(sectionId => {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.style.display = 'block';
+            const chevron = document.getElementById(sectionId.replace('-details', '-chevron'));
+            if (chevron) chevron.classList.add('rotate-180');
+        }
+    });
+});
+</script>
