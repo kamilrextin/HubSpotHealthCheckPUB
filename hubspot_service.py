@@ -14,13 +14,17 @@ class HubSpotService:
         self.redirect_uri = os.environ.get("HUBSPOT_REDIRECT_URI", "https://workspace.kamilrextin.replit.app/oauth/callback")
         self.base_url = "https://api.hubapi.com"
         
-        # Required scopes for the audit - using minimal valid HubSpot OAuth scopes
+        # Required scopes for the audit - matching HubSpot app configuration
         self.scopes = [
             'oauth',
             'crm.objects.contacts.read',
             'crm.objects.companies.read', 
             'crm.objects.deals.read',
-            'forms'
+            'crm.objects.listings.read',
+            'crm.schemas.listings.read',
+            'forms',
+            'automation',
+            'automation.sequences.read'
         ]
     
     def get_authorization_url(self) -> str:
