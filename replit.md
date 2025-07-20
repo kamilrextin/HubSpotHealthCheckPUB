@@ -15,7 +15,8 @@ Preferred communication style: Simple, everyday language.
 - Fixed scope configuration issues by matching exact HubSpot API requirements
 - Configured 9 required scopes: oauth, crm.objects.contacts.read, crm.objects.companies.read, crm.objects.deals.read, crm.objects.listings.read, crm.schemas.listings.read, forms, automation, automation.sequences.read
 - Enhanced OAuth setup guide with precise scope requirements
-- OAuth flow working in development environment with staging domain
+- **Updated to production secure URL**: https://hubspotaudit.replit.app/oauth/callback
+- Enhanced access token authentication as prominent fallback option for OAuth issues
 
 ## System Architecture
 

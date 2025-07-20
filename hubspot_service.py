@@ -11,8 +11,8 @@ class HubSpotService:
         self.access_token = access_token
         self.client_id = os.environ.get("HUBSPOT_CLIENT_ID")
         self.client_secret = os.environ.get("HUBSPOT_CLIENT_SECRET")
-        # Use environment variable for redirect URI, with fallback to development URL
-        self.redirect_uri = os.environ.get("HUBSPOT_REDIRECT_URI", "https://workspace.kamilrextin.replit.app/oauth/callback")
+        # Use environment variable for redirect URI, with fallback to production URL
+        self.redirect_uri = os.environ.get("HUBSPOT_REDIRECT_URI", "https://hubspotaudit.replit.app/oauth/callback")
         self.base_url = "https://api.hubapi.com"
         
         # Required scopes for the audit - matching HubSpot app configuration
