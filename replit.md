@@ -8,14 +8,14 @@ This is a Flask-based web application that performs comprehensive audits of HubS
 
 Preferred communication style: Simple, everyday language.
 
-## Recent Changes (January 2025)
+## Recent Changes (July 2025)
 
 ### OAuth Authentication Enhancement
-- Added comprehensive OAuth setup guide at `/oauth/setup`
-- Enhanced home page to detect OAuth credentials and guide setup
-- Updated HubSpot scopes to use standard scope names (contacts, companies, deals, automation, forms, reports, settings.users.read, integrations)
-- Improved error handling for missing OAuth credentials
-- Created step-by-step instructions for HubSpot app creation
+- Successfully implemented OAuth "Login with HubSpot" authentication
+- Fixed scope configuration issues by matching exact HubSpot API requirements
+- Configured 9 required scopes: oauth, crm.objects.contacts.read, crm.objects.companies.read, crm.objects.deals.read, crm.objects.listings.read, crm.schemas.listings.read, forms, automation, automation.sequences.read
+- Enhanced OAuth setup guide with precise scope requirements
+- OAuth flow working in development environment with staging domain
 
 ## System Architecture
 
