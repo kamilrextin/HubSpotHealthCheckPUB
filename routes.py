@@ -26,6 +26,11 @@ def token_auth():
     
     return render_template('token_auth.html')
 
+@app.route('/scoring-methodology')
+def scoring_methodology():
+    """Display the scoring methodology page"""
+    return render_template('scoring_methodology.html')
+
 @app.route('/oauth/authorize')
 def oauth_authorize():
     """Redirect to HubSpot OAuth authorization"""

@@ -37,14 +37,38 @@ Preferred communication style: Simple, everyday language.
 2. **Routes** (`routes.py`): Web endpoints for OAuth flow, dashboard, and report generation
 3. **Templates**: Responsive HTML templates for user interface
 
-### Audit Categories
-The system evaluates six key areas:
-- **Admin & Setup**: User management, super admin ratios, integrations
-- **Properties**: Usage analysis and optimization recommendations
-- **Workflows**: Automation effectiveness and activity levels
-- **Forms**: Form utilization and embedding status
-- **Reporting**: Dashboard and custom report analysis
-- **Sales**: Pipeline setup and deal assignment tracking
+### Audit Categories & Scoring
+The system evaluates six key areas with equal weighting (16.7% each):
+
+### Admin & Setup (16.7%)
+- **Excellent (5.0)**: 1-10 users, 1-3 super admins, 3+ integrations
+- **Good (3.5)**: 11-25 users, 4-5 super admins, 1-2 integrations  
+- **Poor (2.0)**: 26+ users, 6+ super admins, 0 integrations
+
+### Properties (16.7%)
+- **Excellent (5.0)**: 0-10% unused custom properties
+- **Good (3.5)**: 11-25% unused properties
+- **Poor (2.0)**: 26%+ unused properties
+
+### Workflows (16.7%)
+- **Excellent (5.0)**: 5+ workflows, 0-10% inactive
+- **Good (3.5)**: 2-4 workflows, 11-25% inactive
+- **Poor (2.0)**: 0-1 workflows, 26%+ inactive
+
+### Forms (16.7%)
+- **Excellent (5.0)**: 3+ forms, 0-20% unembedded
+- **Good (3.5)**: 1-2 forms, 21-40% unembedded
+- **Poor (2.0)**: 0 forms, 41%+ unembedded
+
+### Reporting (16.7%)
+- **Excellent (5.0)**: 2+ dashboards, 1+ custom reports
+- **Good (3.5)**: 1 dashboard, 0 custom reports
+- **Poor (2.0)**: 0 dashboards, 0 custom reports
+
+### Sales (16.7%)
+- **Excellent (5.0)**: 2+ pipelines, 0-5% unassigned deals
+- **Good (3.5)**: 1 pipeline, 6-15% unassigned deals
+- **Poor (2.0)**: 0 pipelines, 16%+ unassigned deals
 
 ## Data Flow
 

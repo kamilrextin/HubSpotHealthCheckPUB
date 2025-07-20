@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}Scoring Methodology - HubSpot Audit Tool{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">HubSpot Audit Scoring Methodology</h1>
+        <p class="text-xl text-gray-600">
+            Understanding how we evaluate your marketing operations setup
+        </p>
+    </div>
+
+    <!-- Overall Scoring -->
+    <div class="bg-white rounded-lg shadow-sm border p-8 mb-8">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6">
+            <i class="bi bi-star mr-2 text-yellow-500"></i>
+            Overall Scoring System
+        </h2>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Score Scale</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                            <span class="grade-a font-bold">A</span>
+                        </div>
+                        <span><strong>4.5 - 5.0:</strong> Excellent (90-100%)</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                            <span class="grade-b font-bold">B</span>
+                        </div>
+                        <span><strong>3.5 - 4.4:</strong> Good (70-89%)</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
+                            <span class="grade-c font-bold">C</span>
+                        </div>
+                        <span><strong>2.5 - 3.4:</strong> Fair (50-69%)</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                            <span class="grade-d font-bold">D</span>
+                        </div>
+                        <span><strong>1.5 - 2.4:</strong> Needs Improvement (30-49%)</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-red-200 flex items-center justify-center">
+                            <span class="grade-f font-bold">F</span>
+                        </div>
+                        <span><strong>0 - 1.4:</strong> Critical Issues (0-29%)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Calculation Method</h3>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-700 mb-2">
+                        <strong>Overall Score = Average of all category scores</strong>
+                    </p>
+                    <p class="text-sm text-gray-600">
+                        Each of the 6 categories (Admin & Setup, Properties, Workflows, Forms, Reporting, Sales) 
+                        contributes equally to your overall score. We calculate the arithmetic mean of all category scores.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Breakdowns -->
+    <div class="space-y-8">
+        <!-- Admin & Setup -->
+        <div class="bg-white rounded-lg shadow-sm border p-8">
+            <h2 class="text-2xl font-semibold text-blue-600 mb-6">
+                <i class="bi bi-people mr-2"></i>
+                Admin & Setup (16.7% of overall score)
+            </h2>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-800 mb-2">Excellent (5.0)</h4>
+                    <ul class="text-sm text-green-700 space-y-1">
+                        <li>• 1-10 total users</li>
+                        <li>• 1-3 super admins</li>
+                        <li>• 3+ active integrations</li>
+                    </ul>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-800 mb-2">Good (3.5)</h4>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• 11-25 total users</li>
+                        <li>• 4-5 super admins</li>
+                        <li>• 1-2 active integrations</li>
+                    </ul>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-red-800 mb-2">Poor (2.0)</h4>
+                    <ul class="text-sm text-red-700 space-y-1">
+                        <li>• 26+ total users</li>
+                        <li>• 6+ super admins</li>
+                        <li>• 0 active integrations</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-6 bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-gray-800 mb-2">What we evaluate:</h4>
+                <p class="text-sm text-gray-600">
+                    User management efficiency, appropriate admin permissions distribution, and integration ecosystem health. 
+                    Too many users or admins can indicate poor governance, while good integrations show technical maturity.
+                </p>
+            </div>
+        </div>
+
+        <!-- Properties -->
+        <div class="bg-white rounded-lg shadow-sm border p-8">
+            <h2 class="text-2xl font-semibold text-green-600 mb-6">
+                <i class="bi bi-tags mr-2"></i>
+                Properties (16.7% of overall score)
+            </h2>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-800 mb-2">Excellent (5.0)</h4>
+                    <ul class="text-sm text-green-700 space-y-1">
+                        <li>• 0-10% unused properties</li>
+                    </ul>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-800 mb-2">Good (3.5)</h4>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• 11-25% unused properties</li>
+                    </ul>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-red-800 mb-2">Poor (2.0)</h4>
+                    <ul class="text-sm text-red-700 space-y-1">
+                        <li>• 26%+ unused properties</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-6 bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-gray-800 mb-2">What we evaluate:</h4>
+                <p class="text-sm text-gray-600">
+                    Custom property utilization across contacts, companies, and deals. Unused properties create database bloat, 
+                    confusion for users, and indicate poor data governance. We analyze which properties are actually being populated with data.
+                </p>
+            </div>
+        </div>
+
+        <!-- Workflows -->
+        <div class="bg-white rounded-lg shadow-sm border p-8">
+            <h2 class="text-2xl font-semibold text-purple-600 mb-6">
+                <i class="bi bi-arrow-repeat mr-2"></i>
+                Workflows (16.7% of overall score)
+            </h2>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-800 mb-2">Excellent (5.0)</h4>
+                    <ul class="text-sm text-green-700 space-y-1">
+                        <li>• 5+ total workflows</li>
+                        <li>• 0-10% inactive workflows</li>
+                    </ul>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-800 mb-2">Good (3.5)</h4>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• 2-4 total workflows</li>
+                        <li>• 11-25% inactive workflows</li>
+                    </ul>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-red-800 mb-2">Poor (2.0)</h4>
+                    <ul class="text-sm text-red-700 space-y-1">
+                        <li>• 0-1 total workflows</li>
+                        <li>• 26%+ inactive workflows</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-6 bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-gray-800 mb-2">What we evaluate:</h4>
+                <p class="text-sm text-gray-600">
+                    Automation coverage and workflow health. We assess the total number of workflows, how many are active vs. inactive, 
+                    and identify potentially redundant workflows based on naming patterns (test, backup, copy, old, temp).
+                </p>
+            </div>
+        </div>
+
+        <!-- Forms -->
+        <div class="bg-white rounded-lg shadow-sm border p-8">
+            <h2 class="text-2xl font-semibold text-orange-600 mb-6">
+                <i class="bi bi-clipboard mr-2"></i>
+                Forms (16.7% of overall score)
+            </h2>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-800 mb-2">Excellent (5.0)</h4>
+                    <ul class="text-sm text-green-700 space-y-1">
+                        <li>• 3+ total forms</li>
+                        <li>• 0-20% unembedded forms</li>
+                    </ul>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-800 mb-2">Good (3.5)</h4>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• 1-2 total forms</li>
+                        <li>• 21-40% unembedded forms</li>
+                    </ul>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-red-800 mb-2">Poor (2.0)</h4>
+                    <ul class="text-sm text-red-700 space-y-1">
+                        <li>• 0 total forms</li>
+                        <li>• 41%+ unembedded forms</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-6 bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-gray-800 mb-2">What we evaluate:</h4>
+                <p class="text-sm text-gray-600">
+                    Form strategy and lead capture optimization. We count total forms and analyze how many are actually published 
+                    and embedded on landing pages vs. sitting unused. Forms are critical for lead generation.
+                </p>
+            </div>
+        </div>
+
+        <!-- Reporting -->
+        <div class="bg-white rounded-lg shadow-sm border p-8">
+            <h2 class="text-2xl font-semibold text-red-600 mb-6">
+                <i class="bi bi-bar-chart mr-2"></i>
+                Reporting (16.7% of overall score)
+            </h2>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-800 mb-2">Excellent (5.0)</h4>
+                    <ul class="text-sm text-green-700 space-y-1">
+                        <li>• 2+ dashboards</li>
+                        <li>• 1+ custom reports</li>
+                    </ul>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-800 mb-2">Good (3.5)</h4>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• 1 dashboard</li>
+                        <li>• 0 custom reports</li>
+                    </ul>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-red-800 mb-2">Poor (2.0)</h4>
+                    <ul class="text-sm text-red-700 space-y-1">
+                        <li>• 0 dashboards</li>
+                        <li>• 0 custom reports</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-6 bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-gray-800 mb-2">What we evaluate:</h4>
+                <p class="text-sm text-gray-600">
+                    Data visibility and performance tracking setup. We assess dashboard creation for executive visibility 
+                    and custom report development for specific business needs beyond HubSpot's default reports.
+                </p>
+            </div>
+        </div>
+
+        <!-- Sales -->
+        <div class="bg-white rounded-lg shadow-sm border p-8">
+            <h2 class="text-2xl font-semibold text-indigo-600 mb-6">
+                <i class="bi bi-currency-dollar mr-2"></i>
+                Sales (16.7% of overall score)
+            </h2>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-800 mb-2">Excellent (5.0)</h4>
+                    <ul class="text-sm text-green-700 space-y-1">
+                        <li>• 2+ pipelines</li>
+                        <li>• 0-5% unassigned deals</li>
+                    </ul>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-800 mb-2">Good (3.5)</h4>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• 1 pipeline</li>
+                        <li>• 6-15% unassigned deals</li>
+                    </ul>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-red-800 mb-2">Poor (2.0)</h4>
+                    <ul class="text-sm text-red-700 space-y-1">
+                        <li>• 0 pipelines</li>
+                        <li>• 16%+ unassigned deals</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-6 bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-gray-800 mb-2">What we evaluate:</h4>
+                <p class="text-sm text-gray-600">
+                    Sales process organization and deal management. We analyze pipeline setup for different sales processes, 
+                    lifecycle stage configuration, and the percentage of deals properly assigned to sales reps.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Limitations -->
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mt-8">
+        <h3 class="text-lg font-semibold text-yellow-800 mb-3">
+            <i class="bi bi-exclamation-triangle mr-2"></i>
+            Current Limitations
+        </h3>
+        <div class="text-yellow-700 space-y-2">
+            <p>This audit requires specific HubSpot API permissions to access all data:</p>
+            <ul class="list-disc list-inside space-y-1 ml-4">
+                <li><strong>Contact/Company/Deal Properties:</strong> Requires contacts-read, companies-read, deals-read scopes</li>
+                <li><strong>Workflows:</strong> Requires automation-access scope</li>
+                <li><strong>Reporting:</strong> Some endpoints may not be available in all HubSpot tiers</li>
+                <li><strong>Sales Pipelines:</strong> Requires CRM schema read permissions</li>
+            </ul>
+            <p class="mt-3">
+                If your access token has limited permissions, some categories may show as "No data available" but won't 
+                negatively impact your overall score calculation.
+            </p>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="text-center mt-12">
+        <a href="{{ url_for('index') }}" 
+           class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200">
+            <i class="bi bi-arrow-left mr-2"></i>
+            Back to Audit Tool
+        </a>
+    </div>
+</div>
+{% endblock %}
