@@ -442,10 +442,30 @@ class AuditEngine:
     def _get_properties_recommendations(self, metrics: Dict) -> List[str]:
         """Get recommendations for properties category"""
         recommendations = []
+        
+        # Analyze property details for specific insights
+        property_details = metrics.get('property_details', [])
+        property_names = [prop.get('name', '') for prop in property_details]
+        
+        # Detect consolidation opportunities
+        consolidation_opportunities = self._detect_property_consolidation_opportunities(property_names)
+        if consolidation_opportunities:
+            recommendations.extend(consolidation_opportunities)
+        
         if metrics['unused_percentage'] > 25:
             recommendations.append("Clean up unused custom properties to improve data quality")
-        if metrics['total_custom_properties'] > 100:
-            recommendations.append("Consider consolidating similar properties")
+        
+        if metrics['total_custom_properties'] > 50:
+            recommendations.append("Review property naming conventions for consistency")
+            
+        # Detect long property names that could be simplified
+        long_names = [name for name in property_names if len(name) > 50]
+        if long_names:
+            recommendations.append("Consider shortening property names for better usability")
+            
+        if metrics['total_custom_properties'] == 0:
+            recommendations.append("Consider creating custom properties to capture business-specific data")
+        
         return recommendations
     
     def _get_properties_critical_issues(self, metrics: Dict) -> List[str]:
@@ -518,6 +538,40 @@ class AuditEngine:
         if metrics['total_pipelines'] == 0:
             issues.append("No sales pipelines found - sales process not configured")
         return issues
+    
+    def _detect_property_consolidation_opportunities(self, property_names: List[str]) -> List[str]:
+        """Analyze property names to detect consolidation opportunities"""
+        opportunities = []
+        
+        # Group properties by common patterns
+        similar_groups = {}
+        for name in property_names:
+            # Extract base concepts by removing specific identifiers
+            base_concept = name.lower()
+            
+            # Look for patterns like company/service names that could be generalized
+            if 'atsg' in base_concept and 'xtium' in [n.lower() for n in property_names if n != name]:
+                opportunities.append("Properties for 'ATSG' and 'Xtium' could use a generic company field")
+            
+            # Look for very similar property structures
+            words = base_concept.split('_')
+            if len(words) > 5:  # Long property names often indicate over-specificity
+                key_concept = '_'.join(words[:3])  # First 3 words as concept
+                if key_concept not in similar_groups:
+                    similar_groups[key_concept] = []
+                similar_groups[key_concept].append(name)
+        
+        # Identify groups with multiple similar properties
+        for concept, props in similar_groups.items():
+            if len(props) > 1:
+                opportunities.append(f"Similar properties detected: consider consolidating '{concept}*' properties")
+        
+        # Detect assessment/questionnaire properties that could use dynamic fields
+        assessment_count = sum(1 for name in property_names if name.lower().startswith('a_'))
+        if assessment_count > 10:
+            opportunities.append("Many assessment properties (a_*) could be consolidated into repeatable assessment sections")
+        
+        return opportunities[:3]  # Limit to top 3 most actionable recommendations
     
     def _empty_category_result(self, reason="data_unavailable") -> Dict:
         """Return empty result structure for failed category audits"""
