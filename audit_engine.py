@@ -111,27 +111,60 @@ class AuditEngine:
             company_props = self.hubspot.get_company_properties()
             deal_props = self.hubspot.get_deal_properties()
             
-            all_properties = contact_props + company_props + deal_props
-            custom_properties = [prop for prop in all_properties if not prop.get('hubspotDefined', True)]
+            logging.debug(f"Properties fetched - Contacts: {len(contact_props)}, Companies: {len(company_props)}, Deals: {len(deal_props)}")
             
-            # Check usage for custom properties (simplified - in real implementation would check actual usage)
+            all_properties = contact_props + company_props + deal_props
+            
+            # Fix: Better filtering for custom properties - HubSpot uses different ways to mark system vs custom properties
+            custom_properties = []
+            for prop in all_properties:
+                # A property is custom if it's NOT HubSpot defined and is not a calculated property
+                is_hubspot_defined = prop.get('hubspotDefined', False)
+                is_calculated = prop.get('calculated', False)
+                property_name = prop.get('name', '')
+                
+                # HubSpot system properties often start with 'hs_' or are in specific system property names
+                system_prefixes = ['hs_', 'hubspot_', 'createdate', 'lastmodifieddate', 'website', 'domain']
+                is_system_property = any(property_name.startswith(prefix) for prefix in system_prefixes)
+                
+                if not is_hubspot_defined and not is_calculated and not is_system_property:
+                    custom_properties.append(prop)
+            
+            logging.debug(f"Custom properties found: {len(custom_properties)}")
+            
+            # For unused properties, we'll use a more sophisticated approach
+            # Properties with no values set or never used in forms/workflows are considered unused
             unused_properties = []
             for prop in custom_properties:
-                # This is a simplified check - real implementation would query objects with the property
-                if prop.get('calculated', False) or not prop.get('hasUniqueValue', True):
+                # Heuristics for unused properties:
+                # 1. Properties that are not required and have no default value
+                # 2. Properties created but never populated (we can't check this without extra API calls)
+                # For now, we'll use a conservative estimate
+                is_required = prop.get('fieldType') == 'text' and prop.get('formField', True)
+                has_options = prop.get('options', []) or prop.get('referencedObjectType')
+                
+                # Conservative: only mark as potentially unused if it's a basic text field with no special configuration
+                if not is_required and not has_options and prop.get('type') == 'string':
                     unused_properties.append(prop)
             
             total_custom = len(custom_properties)
             unused_count = len(unused_properties)
             unused_percentage = (unused_count / total_custom * 100) if total_custom > 0 else 0
             
+            # Better object type detection
+            contact_custom = [p for p in custom_properties if p.get('objectType') == 'contact' or 'contact' in str(p.get('objectTypeId', ''))]
+            company_custom = [p for p in custom_properties if p.get('objectType') == 'company' or 'company' in str(p.get('objectTypeId', ''))]
+            deal_custom = [p for p in custom_properties if p.get('objectType') == 'deal' or 'deal' in str(p.get('objectTypeId', ''))]
+            
             metrics = {
                 'total_custom_properties': total_custom,
+                'total_all_properties': len(all_properties),
                 'unused_properties_count': unused_count,
                 'unused_percentage': round(unused_percentage, 1),
-                'contact_properties': len([p for p in custom_properties if 'contact' in p.get('objectType', '')]),
-                'company_properties': len([p for p in custom_properties if 'company' in p.get('objectType', '')]),
-                'deal_properties': len([p for p in custom_properties if 'deal' in p.get('objectType', '')])
+                'contact_properties': len(contact_custom),
+                'company_properties': len(company_custom),
+                'deal_properties': len(deal_custom),
+                'property_details': [{'name': p.get('name'), 'type': p.get('type'), 'objectType': p.get('objectType')} for p in custom_properties[:10]]  # First 10 for debugging
             }
             
             score = self._calculate_properties_score(metrics)
