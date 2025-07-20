@@ -129,6 +129,67 @@
                     </div>
                     {% endif %}
                     
+                    <!-- Detailed Insights for specific categories -->
+                    {% if category_key == 'forms' and category_data.metrics.get('unused_forms_list') %}
+                    <div class="mb-4">
+                        <h4 class="text-sm font-medium text-orange-700 mb-2">
+                            <i class="bi bi-exclamation-triangle mr-1"></i>Forms with Zero Submissions (Last 30 Days):
+                        </h4>
+                        <div class="bg-orange-50 p-3 rounded border-l-4 border-orange-400">
+                            {% for form_name in category_data.metrics.unused_forms_list[:5] %}
+                                <div class="text-sm text-orange-800">• {{ form_name }}</div>
+                            {% endfor %}
+                            {% if category_data.metrics.unused_forms_list|length > 5 %}
+                                <div class="text-sm text-orange-600 mt-1">...and {{ category_data.metrics.unused_forms_list|length - 5 }} more</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if category_key == 'forms' and category_data.metrics.get('common_fields_details') %}
+                    <div class="mb-4">
+                        <h4 class="text-sm font-medium text-blue-700 mb-2">
+                            <i class="bi bi-collection mr-1"></i>Common Field Sets (Consolidation Opportunities):
+                        </h4>
+                        {% for field_group in category_data.metrics.common_fields_details[:3] %}
+                        <div class="bg-blue-50 p-3 rounded mb-2 border-l-4 border-blue-400">
+                            <div class="text-sm font-medium text-blue-800">{{ field_group.name }} ({{ field_group.type }})</div>
+                            <div class="text-sm text-blue-600">Used in {{ field_group.usage_count }} forms ({{ field_group.usage_percentage }}%)</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if category_key == 'properties' and category_data.metrics.get('similar_property_details') %}
+                    <div class="mb-4">
+                        <h4 class="text-sm font-medium text-purple-700 mb-2">
+                            <i class="bi bi-arrows-collapse mr-1"></i>Similar Property Groups (Consolidation Needed):
+                        </h4>
+                        {% for group in category_data.metrics.similar_property_details[:3] %}
+                        <div class="bg-purple-50 p-3 rounded mb-2 border-l-4 border-purple-400">
+                            <div class="text-sm font-medium text-purple-800">{{ group.pattern }} ({{ group.count }} properties)</div>
+                            <div class="text-sm text-purple-600">Examples: {{ group.examples|join(', ') }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if category_key == 'workflows' and category_data.metrics.get('inactive_workflow_details') %}
+                    <div class="mb-4">
+                        <h4 class="text-sm font-medium text-red-700 mb-2">
+                            <i class="bi bi-pause-circle mr-1"></i>Inactive Workflows:
+                        </h4>
+                        <div class="bg-red-50 p-3 rounded border-l-4 border-red-400">
+                            {% for workflow in category_data.metrics.inactive_workflow_details[:5] %}
+                                <div class="text-sm text-red-800">• {{ workflow.name }} ({{ workflow.type }})</div>
+                            {% endfor %}
+                            {% if category_data.metrics.inactive_workflow_details|length > 5 %}
+                                <div class="text-sm text-red-600 mt-1">...and {{ category_data.metrics.inactive_workflow_details|length - 5 }} more</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <!-- Recommendations -->
                     {% if category_data.get('recommendations') %}
                     <div>

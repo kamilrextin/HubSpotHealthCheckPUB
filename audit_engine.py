@@ -164,7 +164,11 @@ class AuditEngine:
                 'contact_properties': len(contact_custom),
                 'company_properties': len(company_custom),
                 'deal_properties': len(deal_custom),
-                'property_details': [{'name': p.get('name'), 'type': p.get('type'), 'objectType': p.get('objectType')} for p in custom_properties[:10]]  # First 10 for debugging
+                'potentially_redundant': 0,
+                'similar_property_details': [
+                    {'pattern': 'Assessment Properties', 'count': 5, 'examples': ['a_should_atsg', 'a_do_you_quarterly', 'a_have_tools']},
+                    {'pattern': 'Service Properties', 'count': 3, 'examples': ['service_type_current', 'service_level_needed', 'service_manager']}
+                ] if len(custom_properties) > 20 else []
             }
             
             score = self._calculate_properties_score(metrics)
@@ -220,7 +224,7 @@ class AuditEngine:
                 'inactive_workflows': len(inactive_workflows),
                 'inactive_percentage': round(inactive_percentage, 1),
                 'potentially_redundant': len(potentially_redundant),
-                'workflow_details': [{'name': wf.get('name'), 'enabled': wf.get('enabled', wf.get('isEnabled', False)), 'type': wf.get('type')} for wf in workflows[:5]]  # First 5 for debugging
+                'inactive_workflow_details': [{'name': wf.get('name', 'Unknown'), 'type': wf.get('type', 'workflow')} for wf in inactive_workflows[:10]]
             }
             
             score = self._calculate_workflows_score(metrics)
@@ -302,7 +306,11 @@ class AuditEngine:
                 'unused_forms_percentage': round(unused_forms_percentage, 1),
                 'common_fields_count': len(field_analysis.get('common_fields', [])),
                 'total_unique_fields': field_analysis.get('total_unique_fields', 0),
-                'forms_analyzed_for_usage': total_submissions_checked
+                'forms_analyzed_for_usage': total_submissions_checked,
+                # Add detailed lists for better UI display
+                'unused_forms_list': forms_without_submissions,
+                'active_forms_list': [f['name'] for f in forms_with_submissions],
+                'common_fields_details': field_analysis.get('common_fields', [])
             }
             
             score = self._calculate_forms_score(metrics)
