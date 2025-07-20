@@ -8,6 +8,15 @@ This is a Flask-based web application that performs comprehensive audits of HubS
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (January 2025)
+
+### OAuth Authentication Enhancement
+- Added comprehensive OAuth setup guide at `/oauth/setup`
+- Enhanced home page to detect OAuth credentials and guide setup
+- Updated HubSpot scopes to use standard scope names (contacts, companies, deals, automation, forms, reports, settings.users.read, integrations)
+- Improved error handling for missing OAuth credentials
+- Created step-by-step instructions for HubSpot app creation
+
 ## System Architecture
 
 ### Frontend Architecture

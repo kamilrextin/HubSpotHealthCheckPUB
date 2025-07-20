@@ -31,17 +31,27 @@ def scoring_methodology():
     """Display the scoring methodology page"""
     return render_template('scoring_methodology.html')
 
+@app.route('/oauth/setup')
+def oauth_setup():
+    """OAuth setup guide for users"""
+    return render_template('oauth_setup.html')
+
 @app.route('/oauth/authorize')
 def oauth_authorize():
     """Redirect to HubSpot OAuth authorization"""
     try:
+        # Check if OAuth credentials are configured
+        if not app.config.get('HUBSPOT_CLIENT_ID') or not app.config.get('HUBSPOT_CLIENT_SECRET'):
+            flash('OAuth is not configured. Please set up your HubSpot app credentials first.', 'error')
+            return redirect(url_for('oauth_setup'))
+        
         hubspot = HubSpotService()
         auth_url = hubspot.get_authorization_url()
         return redirect(auth_url)
     except Exception as e:
         logging.error(f"OAuth authorization error: {str(e)}")
-        flash('Error initiating HubSpot authentication. Please try again.', 'error')
-        return redirect(url_for('index'))
+        flash('Error initiating HubSpot authentication. Please check your app configuration.', 'error')
+        return redirect(url_for('oauth_setup'))
 
 @app.route('/oauth/callback')
 def oauth_callback():

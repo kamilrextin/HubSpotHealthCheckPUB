@@ -16,19 +16,14 @@ class HubSpotService:
         
         # Required scopes for the audit
         self.scopes = [
-            'crm.objects.contacts.read',
-            'crm.schemas.contacts.read',
-            'automation.workflows.read',
-            'forms.read',
-            'content.settings.read',
+            'contacts',
+            'companies', 
+            'deals',
+            'automation',
+            'forms',
+            'reports',
             'settings.users.read',
-            'integrations.read',
-            'properties.read',
-            'crm.objects.companies.read',
-            'crm.objects.deals.read',
-            'crm.schemas.companies.read',
-            'crm.schemas.deals.read',
-            'reports'
+            'integrations'
         ]
     
     def get_authorization_url(self) -> str:
