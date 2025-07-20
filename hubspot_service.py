@@ -27,6 +27,9 @@ class HubSpotService:
             'automation',
             'automation.sequences.read'
         ]
+        
+        # Log scope information for debugging
+        logging.debug(f"Configured scopes: {', '.join(self.scopes)}")
     
     def get_authorization_url(self) -> str:
         """Generate HubSpot OAuth authorization URL"""
@@ -74,10 +77,20 @@ class HubSpotService:
             }
             
             url = f"{self.base_url}{endpoint}"
+            logging.debug(f"Making API call to: {url}")
             response = requests.get(url, headers=headers, params=params)
             
+            logging.debug(f"API Response: {endpoint} - Status: {response.status_code}")
+            
             if response.status_code == 200:
-                return response.json()
+                data = response.json()
+                if 'results' in data:
+                    logging.debug(f"Results found: {len(data['results'])} items")
+                elif isinstance(data, list):
+                    logging.debug(f"Direct list returned: {len(data)} items")
+                else:
+                    logging.debug(f"Response structure: {list(data.keys()) if isinstance(data, dict) else type(data)}")
+                return data
             else:
                 logging.error(f"API call failed: {endpoint} - {response.status_code} - {response.text}")
                 return None
@@ -132,10 +145,34 @@ class HubSpotService:
             return []
     
     def get_workflows(self) -> List[Dict]:
-        """Get all workflows"""
+        """Get all workflows - try multiple API endpoints"""
         try:
-            data = self._make_api_call('/automation/v3/workflows')
-            return data.get('results', []) if data else []
+            # Try multiple endpoints since HubSpot workflow APIs vary
+            endpoints_to_try = [
+                '/automation/v3/workflows',  # Standard workflows API
+                '/automation/v4/flows',      # Newer flows API  
+                '/workflows/v3/workflows',   # Alternative endpoint
+                '/automation/v2/workflows'   # Legacy fallback
+            ]
+            
+            for endpoint in endpoints_to_try:
+                logging.debug(f"Trying workflows endpoint: {endpoint}")
+                data = self._make_api_call(endpoint)
+                
+                if data:
+                    if 'results' in data and data['results']:
+                        logging.debug(f"Workflows found via {endpoint}: {len(data['results'])}")
+                        return data['results']
+                    elif isinstance(data, list) and data:
+                        logging.debug(f"Workflows found as direct list via {endpoint}: {len(data)}")
+                        return data
+                    elif 'workflows' in data and data['workflows']:
+                        logging.debug(f"Workflows found in 'workflows' key via {endpoint}: {len(data['workflows'])}")
+                        return data['workflows']
+            
+            logging.warning("No workflows found in any API endpoint")
+            return []
+            
         except Exception as e:
             logging.error(f"Error fetching workflows: {str(e)}")
             return []

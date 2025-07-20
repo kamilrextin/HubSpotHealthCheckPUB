@@ -190,10 +190,22 @@ class AuditEngine:
         """Audit workflows configuration"""
         try:
             workflows = self.hubspot.get_workflows()
+            logging.debug(f"Workflows audit: {len(workflows)} workflows retrieved")
             
             total_workflows = len(workflows)
-            active_workflows = [wf for wf in workflows if wf.get('enabled', False)]
-            inactive_workflows = [wf for wf in workflows if not wf.get('enabled', False)]
+            
+            # Handle different workflow status fields (enabled, isEnabled, status)
+            active_workflows = []
+            inactive_workflows = []
+            
+            for wf in workflows:
+                is_active = (wf.get('enabled', False) or 
+                           wf.get('isEnabled', False) or 
+                           wf.get('status', '').lower() == 'enabled')
+                if is_active:
+                    active_workflows.append(wf)
+                else:
+                    inactive_workflows.append(wf)
             
             # Detect potentially redundant workflows (simplified heuristic)
             workflow_names = [wf.get('name', '').lower() for wf in workflows]
@@ -207,7 +219,8 @@ class AuditEngine:
                 'active_workflows': len(active_workflows),
                 'inactive_workflows': len(inactive_workflows),
                 'inactive_percentage': round(inactive_percentage, 1),
-                'potentially_redundant': len(potentially_redundant)
+                'potentially_redundant': len(potentially_redundant),
+                'workflow_details': [{'name': wf.get('name'), 'enabled': wf.get('enabled', wf.get('isEnabled', False)), 'type': wf.get('type')} for wf in workflows[:5]]  # First 5 for debugging
             }
             
             score = self._calculate_workflows_score(metrics)
