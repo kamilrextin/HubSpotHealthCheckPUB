@@ -154,14 +154,15 @@
                 {% endif %}
             </div>
             
-            <!-- Secondary Token Option -->
+            <!-- Alternative Token Option - More Prominent -->
             <div class="text-center">
-                <p class="text-sm opacity-75 mb-2">Already have an access token?</p>
+                <p class="text-sm opacity-90 mb-3 font-medium">Skip OAuth issues? Start immediately:</p>
                 <a href="{{ url_for('token_auth') }}" 
-                   class="inline-flex items-center px-4 py-2 border border-white text-white text-sm rounded-lg hover:bg-white hover:text-blue-600 transition duration-200">
+                   class="inline-flex items-center px-6 py-3 bg-white bg-opacity-90 text-blue-600 font-semibold rounded-lg hover:bg-white transition duration-200 shadow-md">
                     <i class="bi bi-key mr-2"></i>
-                    Use Access Token Instead
+                    Quick Start with Access Token
                 </a>
+                <p class="text-xs opacity-75 mt-2">Get your token from HubSpot Settings → Integrations → Private Apps</p>
             </div>
         {% endif %}
         

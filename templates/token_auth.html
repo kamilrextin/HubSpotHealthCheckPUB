@@ -6,10 +6,14 @@
 <div class="max-w-2xl mx-auto">
     <!-- Header -->
     <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-900 mb-4">Enter Your HubSpot Access Token</h1>
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Quick Start with Access Token</h1>
         <p class="text-xl text-gray-600">
-            If you already have a HubSpot access token, you can use it directly to run your audit.
+            Skip OAuth setup and start your audit immediately with a HubSpot Private App token.
         </p>
+        <div class="mt-4 inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-lg text-sm">
+            <i class="bi bi-lightning mr-2"></i>
+            Works immediately • No configuration needed
+        </div>
     </div>
 
     <!-- Token Input Form -->
@@ -64,8 +68,8 @@
                 <li>Copy the generated access token</li>
             </ol>
             
-            <p class="mt-4"><strong>Method 2: OAuth Flow</strong></p>
-            <p>If you prefer the standard OAuth flow, <a href="{{ url_for('oauth_authorize') }}" class="text-blue-600 underline">click here to authenticate with HubSpot</a>.</p>
+            <p class="mt-4"><strong>Method 2: OAuth Flow (Alternative)</strong></p>
+            <p>If you prefer OAuth and have resolved the redirect URL issues, <a href="{{ url_for('index') }}" class="text-blue-600 underline">return to the home page</a> to try OAuth again.</p>
         </div>
     </div>
 
