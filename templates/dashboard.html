@@ -32,6 +32,9 @@
         </div>
     </div>
 
+    <!-- Score Visualization -->
+    {% include 'score_visualization.html' %}
+
     <!-- Category Results Grid -->
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% set categories = [
@@ -46,60 +49,99 @@
         {% for category_key, category_name, icon, color in categories %}
             {% set category_data = results.get(category_key, {}) %}
             <div class="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition duration-200">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center space-x-3">
-                        <i class="{{ icon }} text-2xl text-{{ color }}-600"></i>
-                        <h3 class="text-lg font-semibold text-gray-900">{{ category_name }}</h3>
+                {% if category_data.get('status') == 'insufficient_permissions' %}
+                    <!-- Permission Issue Card -->
+                    <div class="text-center py-8">
+                        <i class="{{ icon }} text-4xl text-gray-300 mb-4"></i>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ category_name }}</h3>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                            <i class="bi bi-shield-exclamation text-yellow-600 text-xl mb-2"></i>
+                            <p class="text-sm text-yellow-800 font-medium">Insufficient Permissions</p>
+                            <p class="text-xs text-yellow-700 mt-1">{{ category_data.get('message', 'Additional API scopes needed') }}</p>
+                        </div>
+                        <button onclick="showPermissionHelp('{{ category_key }}')" 
+                                class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            <i class="bi bi-question-circle mr-1"></i>How to Fix This
+                        </button>
                     </div>
-                    <div class="text-right">
-                        <div class="text-2xl font-bold grade-{{ category_data.get('grade', 'f').lower() }}">
-                            {{ category_data.get('grade', 'F') }}
+                {% else %}
+                    <!-- Normal Category Card -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="{{ icon }} text-2xl text-{{ color }}-600"></i>
+                            <h3 class="text-lg font-semibold text-gray-900">{{ category_name }}</h3>
                         </div>
-                        <div class="text-sm text-gray-600">
-                            {{ category_data.get('score', 0) }}/5.0
+                        <div class="text-right">
+                            <div class="text-2xl font-bold grade-{{ category_data.get('grade', 'f').lower() }}">
+                                {{ category_data.get('grade', 'F') }}
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                {% if category_data.get('score') is not none %}
+                                    {{ category_data.get('score', 0) }}/5.0
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Metrics -->
-                {% if category_data.get('metrics') %}
-                <div class="space-y-2 mb-4">
-                    <h4 class="text-sm font-medium text-gray-700">Key Metrics:</h4>
-                    {% for key, value in category_data.metrics.items() %}
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">{{ key.replace('_', ' ').title() }}:</span>
-                            <span class="font-medium">{{ value }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                
-                <!-- Critical Issues -->
-                {% if category_data.get('critical_issues') %}
-                <div class="mb-4">
-                    <h4 class="text-sm font-medium text-red-700 mb-2">
-                        <i class="bi bi-exclamation-triangle mr-1"></i>Critical Issues:
-                    </h4>
-                    {% for issue in category_data.critical_issues %}
-                        <div class="text-sm text-red-600 bg-red-50 p-2 rounded mb-1">
-                            {{ issue }}
-                        </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                
-                <!-- Recommendations -->
-                {% if category_data.get('recommendations') %}
-                <div>
-                    <h4 class="text-sm font-medium text-gray-700 mb-2">
-                        <i class="bi bi-lightbulb mr-1"></i>Recommendations:
-                    </h4>
-                    {% for recommendation in category_data.recommendations %}
-                        <div class="text-sm text-gray-600 bg-gray-50 p-2 rounded mb-1">
-                            • {{ recommendation }}
-                        </div>
-                    {% endfor %}
-                </div>
+                    <!-- Metrics with Explanations -->
+                    {% if category_data.get('metrics') %}
+                    <div class="space-y-2 mb-4">
+                        <h4 class="text-sm font-medium text-gray-700">Key Metrics:</h4>
+                        {% for key, value in category_data.metrics.items() %}
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">{{ key.replace('_', ' ').title() }}:</span>
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-medium">{{ value }}</span>
+                                    {% if category_data.get('grade') in ['D', 'F'] %}
+                                        <div class="tooltip">
+                                            <i class="bi bi-exclamation-triangle text-red-500 text-xs cursor-help"></i>
+                                            <div class="tooltiptext">
+                                                {% if 'percentage' in key and value > 25 %}
+                                                    High percentage indicates optimization needed
+                                                {% elif 'count' in key and value == 0 %}
+                                                    Missing {{ key.replace('_count', '').replace('_', ' ') }} - setup required
+                                                {% elif 'total' in key and value < 2 %}
+                                                    Low count - consider expanding your {{ category_key }} strategy
+                                                {% else %}
+                                                    This metric is below recommended thresholds
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Critical Issues -->
+                    {% if category_data.get('critical_issues') %}
+                    <div class="mb-4">
+                        <h4 class="text-sm font-medium text-red-700 mb-2">
+                            <i class="bi bi-exclamation-triangle mr-1"></i>Critical Issues:
+                        </h4>
+                        {% for issue in category_data.critical_issues %}
+                            <div class="text-sm text-red-600 bg-red-50 p-2 rounded mb-1">
+                                {{ issue }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Recommendations -->
+                    {% if category_data.get('recommendations') %}
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">
+                            <i class="bi bi-lightbulb mr-1"></i>Recommendations:
+                        </h4>
+                        {% for recommendation in category_data.recommendations %}
+                            <div class="text-sm text-gray-600 bg-gray-50 p-2 rounded mb-1">
+                                • {{ recommendation }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 {% endif %}
             </div>
         {% endfor %}
@@ -187,4 +229,118 @@
         </a>
     </div>
 </div>
+
+<!-- Permission Help Modal -->
+<div id="permissionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Required API Permissions</h3>
+                <button onclick="closePermissionHelp()" class="text-gray-400 hover:text-gray-600">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            
+            <div id="permissionContent">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+            
+            <div class="mt-6 flex space-x-3">
+                <a href="{{ url_for('token_auth') }}" 
+                   class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+                    Update Token
+                </a>
+                <button onclick="closePermissionHelp()" 
+                        class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const permissionRequirements = {
+    'admin': {
+        'scopes': ['settings.users.read', 'integrations.read'],
+        'description': 'User management and integrations analysis',
+        'instructions': 'Your access token needs permissions to read user settings and active integrations.'
+    },
+    'properties': {
+        'scopes': ['crm.schemas.contacts.read', 'crm.schemas.companies.read', 'crm.schemas.deals.read'],
+        'description': 'Custom properties analysis across all CRM objects',
+        'instructions': 'Enable schema read permissions for contacts, companies, and deals in your HubSpot private app.'
+    },
+    'workflows': {
+        'scopes': ['automation.workflows.read'],
+        'description': 'Workflow automation analysis',
+        'instructions': 'Add automation access scope to analyze your workflows and automation setup.'
+    },
+    'forms': {
+        'scopes': ['forms.read'],
+        'description': 'Forms and lead capture analysis',
+        'instructions': 'Enable forms read permission to analyze your lead capture setup.'
+    },
+    'reporting': {
+        'scopes': ['reports.read'],
+        'description': 'Dashboard and custom reports analysis',
+        'instructions': 'Add reports read scope to analyze your reporting configuration.'
+    },
+    'sales': {
+        'scopes': ['crm.schemas.deals.read', 'crm.pipelines.read'],
+        'description': 'Sales pipeline and deal management analysis',
+        'instructions': 'Enable deal schema and pipeline read permissions for sales analysis.'
+    }
+};
+
+function showPermissionHelp(category) {
+    const modal = document.getElementById('permissionModal');
+    const content = document.getElementById('permissionContent');
+    const req = permissionRequirements[category];
+    
+    content.innerHTML = `
+        <div class="space-y-4">
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-blue-900 mb-2">Category: ${req.description}</h4>
+                <p class="text-blue-800 text-sm">${req.instructions}</p>
+            </div>
+            
+            <div>
+                <h4 class="font-semibold text-gray-900 mb-2">Required Scopes:</h4>
+                <ul class="space-y-1">
+                    ${req.scopes.map(scope => `
+                        <li class="flex items-center space-x-2">
+                            <code class="bg-gray-100 px-2 py-1 rounded text-sm">${scope}</code>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h4 class="font-semibold text-yellow-800 mb-2">How to Fix:</h4>
+                <ol class="list-decimal list-inside space-y-1 text-yellow-700 text-sm">
+                    <li>Go to your HubSpot Developer Account</li>
+                    <li>Edit your Private App settings</li>
+                    <li>Add the required scopes listed above</li>
+                    <li>Generate a new access token</li>
+                    <li>Update your token in this audit tool</li>
+                </ol>
+            </div>
+        </div>
+    `;
+    
+    modal.classList.remove('hidden');
+}
+
+function closePermissionHelp() {
+    document.getElementById('permissionModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('permissionModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePermissionHelp();
+    }
+});
+</script>
 {% endblock %}

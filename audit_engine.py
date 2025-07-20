@@ -56,11 +56,15 @@ class AuditEngine:
                 'overall_grade': 'F'
             }
             
-            # Calculate overall score and grade
-            scores = [category['score'] for category in audit_results.values() if isinstance(category, dict) and 'score' in category]
+            # Calculate overall score and grade (exclude None scores from failed permissions)
+            scores = [category['score'] for category in audit_results.values() 
+                     if isinstance(category, dict) and category.get('score') is not None]
             if scores:
                 audit_results['overall_score'] = round(sum(scores) / len(scores), 1)
                 audit_results['overall_grade'] = self._score_to_grade(audit_results['overall_score'])
+            else:
+                audit_results['overall_score'] = 0
+                audit_results['overall_grade'] = 'F'
             
             return audit_results
             
@@ -141,8 +145,13 @@ class AuditEngine:
             }
             
         except Exception as e:
-            logging.error(f"Properties audit error: {str(e)}")
-            return self._empty_category_result()
+            error_msg = str(e).lower()
+            if "403" in error_msg or "permission" in error_msg or "scope" in error_msg:
+                logging.error(f"Properties audit permission error: {str(e)}")
+                return self._empty_category_result("insufficient_permissions")
+            else:
+                logging.error(f"Properties audit error: {str(e)}")
+                return self._empty_category_result("api_error")
     
     def _audit_workflows(self) -> Dict:
         """Audit workflows configuration"""
@@ -477,12 +486,35 @@ class AuditEngine:
             issues.append("No sales pipelines found - sales process not configured")
         return issues
     
-    def _empty_category_result(self) -> Dict:
+    def _empty_category_result(self, reason="data_unavailable") -> Dict:
         """Return empty result structure for failed category audits"""
-        return {
-            'score': 0,
-            'grade': 'F',
-            'metrics': {},
-            'recommendations': ['Unable to audit this category - please check API permissions'],
-            'critical_issues': ['Audit failed - API access issue']
-        }
+        if reason == "insufficient_permissions":
+            return {
+                'score': None,  # Don't include in overall calculation
+                'grade': 'N/A',
+                'metrics': {},
+                'recommendations': ['Insufficient API permissions to analyze this category'],
+                'critical_issues': [],
+                'status': 'insufficient_permissions',
+                'message': 'Please re-authenticate with additional scopes to analyze this category'
+            }
+        elif reason == "api_error":
+            return {
+                'score': None,
+                'grade': 'N/A', 
+                'metrics': {},
+                'recommendations': ['API error occurred - check connectivity'],
+                'critical_issues': [],
+                'status': 'api_error',
+                'message': 'Unable to retrieve data - please try again'
+            }
+        else:
+            return {
+                'score': 0,
+                'grade': 'F',
+                'metrics': {},
+                'recommendations': ['Unable to audit this category - please check API permissions'],
+                'critical_issues': ['Audit failed - API access issue'],
+                'status': 'data_unavailable',
+                'message': 'No data found for analysis'
+            }

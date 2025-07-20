@@ -1,0 +1,163 @@
+<!-- Score Visualization Component -->
+<div class="bg-white rounded-lg shadow-sm border p-8 mb-8">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">
+        <i class="bi bi-pie-chart mr-2 text-blue-600"></i>
+        Score Breakdown Visualization
+    </h2>
+    
+    <!-- Radar Chart Container -->
+    <div class="grid md:grid-cols-2 gap-8">
+        <!-- Chart -->
+        <div>
+            <canvas id="scoreRadarChart" width="400" height="400"></canvas>
+        </div>
+        
+        <!-- Category Progress Bars -->
+        <div class="space-y-4">
+            {% set categories = [
+                ('admin', 'Admin & Setup', 'blue'),
+                ('properties', 'Properties', 'green'),
+                ('workflows', 'Workflows', 'purple'),
+                ('forms', 'Forms', 'orange'),
+                ('reporting', 'Reporting', 'red'),
+                ('sales', 'Sales', 'indigo')
+            ] %}
+            
+            {% for category_key, category_name, color in categories %}
+                {% set category_data = results.get(category_key, {}) %}
+                {% set score = category_data.get('score', 0) %}
+                {% set grade = category_data.get('grade', 'F') %}
+                {% set percentage = (score / 5.0 * 100)|round %}
+                
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">{{ category_name }}</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-bold grade-{{ grade.lower() }}">{{ grade }}</span>
+                            <span class="text-sm text-gray-500">{{ score }}/5.0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="score-bar">
+                        <div class="score-fill {% if percentage >= 90 %}excellent{% elif percentage >= 70 %}good{% elif percentage >= 50 %}fair{% else %}poor{% endif %}" 
+                             style="width: {{ percentage }}%"></div>
+                    </div>
+                    
+                    <!-- Tooltip with explanation -->
+                    <div class="tooltip">
+                        <i class="bi bi-info-circle text-gray-400 cursor-help"></i>
+                        <div class="tooltiptext">
+                            {% if category_data.get('critical_issues') %}
+                                <strong>Issues:</strong> {{ category_data.critical_issues[0] if category_data.critical_issues else 'No critical issues' }}
+                            {% elif category_data.get('recommendations') %}
+                                <strong>Tip:</strong> {{ category_data.recommendations[0] if category_data.recommendations else 'Performing well' }}
+                            {% else %}
+                                Hover for more details about this category score
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Benchmark Comparison -->
+    <div class="mt-8 pt-6 border-t border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">How You Compare</h3>
+        <div class="grid md:grid-cols-3 gap-4">
+            <div class="bg-blue-50 p-4 rounded-lg text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ results.overall_score }}</div>
+                <div class="text-sm text-blue-700">Your Score</div>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                <div class="text-2xl font-bold text-gray-600">3.2</div>
+                <div class="text-sm text-gray-700">Industry Average</div>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg text-center">
+                <div class="text-2xl font-bold text-green-600">4.8</div>
+                <div class="text-sm text-green-700">Top 10% Benchmark</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Radar Chart for Score Visualization
+const ctx = document.getElementById('scoreRadarChart').getContext('2d');
+const scoreData = {
+    labels: ['Admin & Setup', 'Properties', 'Workflows', 'Forms', 'Reporting', 'Sales'],
+    datasets: [
+        {
+            label: 'Your Scores',
+            data: [
+                {{ results.get('admin', {}).get('score', 0) }},
+                {{ results.get('properties', {}).get('score', 0) }},
+                {{ results.get('workflows', {}).get('score', 0) }},
+                {{ results.get('forms', {}).get('score', 0) }},
+                {{ results.get('reporting', {}).get('score', 0) }},
+                {{ results.get('sales', {}).get('score', 0) }}
+            ],
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 2,
+            pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(59, 130, 246, 1)'
+        },
+        {
+            label: 'Industry Average',
+            data: [3.2, 3.1, 2.8, 3.5, 2.9, 3.3],
+            backgroundColor: 'rgba(156, 163, 175, 0.1)',
+            borderColor: 'rgba(156, 163, 175, 1)',
+            borderWidth: 1,
+            pointBackgroundColor: 'rgba(156, 163, 175, 1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(156, 163, 175, 1)'
+        }
+    ]
+};
+
+const config = {
+    type: 'radar',
+    data: scoreData,
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+            r: {
+                beginAtZero: true,
+                max: 5,
+                ticks: {
+                    stepSize: 1
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.1)'
+                },
+                angleLines: {
+                    color: 'rgba(0, 0, 0, 0.1)'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': ' + context.parsed.r.toFixed(1) + '/5.0';
+                    }
+                }
+            }
+        }
+    }
+};
+
+new Chart(ctx, config);
+</script>

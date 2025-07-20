@@ -1,0 +1,235 @@
+{
+  "version": "1.0",
+  "scoring_system": {
+    "scale": {
+      "excellent": { "min": 4.5, "max": 5.0, "grade": "A", "description": "Excellent (90-100%)" },
+      "good": { "min": 3.5, "max": 4.4, "grade": "B", "description": "Good (70-89%)" },
+      "fair": { "min": 2.5, "max": 3.4, "grade": "C", "description": "Fair (50-69%)" },
+      "needs_improvement": { "min": 1.5, "max": 2.4, "grade": "D", "description": "Needs Improvement (30-49%)" },
+      "critical": { "min": 0.0, "max": 1.4, "grade": "F", "description": "Critical Issues (0-29%)" }
+    },
+    "benchmarks": {
+      "industry_average": {
+        "admin": 3.2,
+        "properties": 3.1,
+        "workflows": 2.8,
+        "forms": 3.5,
+        "reporting": 2.9,
+        "sales": 3.3,
+        "overall": 3.1
+      },
+      "top_10_percent": {
+        "admin": 4.8,
+        "properties": 4.7,
+        "workflows": 4.9,
+        "forms": 4.6,
+        "reporting": 4.5,
+        "sales": 4.8,
+        "overall": 4.7
+      }
+    }
+  },
+  "categories": {
+    "admin": {
+      "name": "Admin & Setup",
+      "weight": 0.167,
+      "icon": "bi-people",
+      "color": "blue",
+      "description": "User management, super admin permissions, and integration ecosystem health",
+      "metrics": {
+        "total_users": {
+          "excellent": { "min": 1, "max": 10 },
+          "good": { "min": 11, "max": 25 },
+          "poor": { "min": 26, "max": 999 }
+        },
+        "super_admins_count": {
+          "excellent": { "min": 1, "max": 3 },
+          "good": { "min": 4, "max": 5 },
+          "poor": { "min": 6, "max": 999 }
+        },
+        "active_integrations_count": {
+          "excellent": { "min": 3, "max": 999 },
+          "good": { "min": 1, "max": 2 },
+          "poor": { "min": 0, "max": 0 }
+        }
+      },
+      "scoring_logic": "all_conditions_met",
+      "recommendations": {
+        "too_many_users": "Consider consolidating user accounts or reviewing access permissions",
+        "too_many_admins": "Limit super admin access to essential personnel only",
+        "no_integrations": "Connect key tools like email marketing, CRM, or analytics platforms",
+        "few_integrations": "Explore additional integrations to streamline workflows"
+      },
+      "critical_issues": {
+        "no_admins": "No super administrators found - security risk",
+        "excessive_admins": "Too many super admins may indicate poor access control",
+        "no_integrations": "No active integrations found - consider connecting essential tools"
+      }
+    },
+    "properties": {
+      "name": "Properties",
+      "weight": 0.167,
+      "icon": "bi-tags",
+      "color": "green",
+      "description": "Custom property utilization and data governance effectiveness",
+      "metrics": {
+        "unused_percentage": {
+          "excellent": { "min": 0, "max": 10 },
+          "good": { "min": 11, "max": 25 },
+          "poor": { "min": 26, "max": 100 }
+        }
+      },
+      "scoring_logic": "linear_scaling",
+      "recommendations": {
+        "high_unused": "Archive or delete unused properties to improve data clarity",
+        "medium_unused": "Review property usage and consider consolidation",
+        "low_unused": "Excellent property management - consider documenting best practices"
+      },
+      "critical_issues": {
+        "excessive_unused": "50%+ properties unused - major data governance issue",
+        "no_custom_properties": "No custom properties found - may indicate underutilization"
+      }
+    },
+    "workflows": {
+      "name": "Workflows",
+      "weight": 0.167,
+      "icon": "bi-arrow-repeat",
+      "color": "purple",
+      "description": "Marketing automation coverage and workflow health assessment",
+      "metrics": {
+        "total_workflows": {
+          "excellent": { "min": 5, "max": 999 },
+          "good": { "min": 2, "max": 4 },
+          "poor": { "min": 0, "max": 1 }
+        },
+        "inactive_percentage": {
+          "excellent": { "min": 0, "max": 10 },
+          "good": { "min": 11, "max": 25 },
+          "poor": { "min": 26, "max": 100 }
+        }
+      },
+      "scoring_logic": "combined_conditions",
+      "recommendations": {
+        "few_workflows": "Create workflows for lead nurturing, scoring, and lifecycle management",
+        "many_inactive": "Review and activate or delete inactive workflows",
+        "good_coverage": "Consider advanced automation like behavioral triggers"
+      },
+      "critical_issues": {
+        "no_workflows": "No workflows found - missing critical automation",
+        "all_inactive": "All workflows are inactive - automation not functioning"
+      }
+    },
+    "forms": {
+      "name": "Forms",
+      "weight": 0.167,
+      "icon": "bi-clipboard",
+      "color": "orange",
+      "description": "Lead capture optimization and form deployment effectiveness",
+      "metrics": {
+        "total_forms": {
+          "excellent": { "min": 3, "max": 999 },
+          "good": { "min": 1, "max": 2 },
+          "poor": { "min": 0, "max": 0 }
+        },
+        "unembedded_percentage": {
+          "excellent": { "min": 0, "max": 20 },
+          "good": { "min": 21, "max": 40 },
+          "poor": { "min": 41, "max": 100 }
+        }
+      },
+      "scoring_logic": "combined_conditions",
+      "recommendations": {
+        "no_forms": "Create forms for lead capture on key landing pages",
+        "unembedded_forms": "Embed forms on relevant landing pages and websites",
+        "good_forms": "Consider A/B testing form designs and field optimization"
+      },
+      "critical_issues": {
+        "no_forms": "No forms found - missing lead capture mechanism",
+        "all_unembedded": "Forms exist but aren't deployed - no lead capture active"
+      }
+    },
+    "reporting": {
+      "name": "Reporting",
+      "weight": 0.167,
+      "icon": "bi-bar-chart",
+      "color": "red",
+      "description": "Data visibility and performance tracking infrastructure",
+      "metrics": {
+        "total_dashboards": {
+          "excellent": { "min": 2, "max": 999 },
+          "good": { "min": 1, "max": 1 },
+          "poor": { "min": 0, "max": 0 }
+        },
+        "custom_reports": {
+          "excellent": { "min": 1, "max": 999 },
+          "good": { "min": 0, "max": 0 },
+          "poor": { "min": 0, "max": 0 }
+        }
+      },
+      "scoring_logic": "combined_conditions",
+      "recommendations": {
+        "no_dashboards": "Create executive and operational dashboards for key metrics",
+        "no_custom_reports": "Build custom reports for specific business KPIs",
+        "good_reporting": "Consider automated report sharing and alert setup"
+      },
+      "critical_issues": {
+        "no_visibility": "No dashboards or reports - blind to performance data",
+        "limited_insights": "Only default reports - missing custom business insights"
+      }
+    },
+    "sales": {
+      "name": "Sales",
+      "weight": 0.167,
+      "icon": "bi-currency-dollar",
+      "color": "indigo",
+      "description": "Sales process organization and pipeline management effectiveness",
+      "metrics": {
+        "total_pipelines": {
+          "excellent": { "min": 2, "max": 999 },
+          "good": { "min": 1, "max": 1 },
+          "poor": { "min": 0, "max": 0 }
+        },
+        "unassigned_deals_percentage": {
+          "excellent": { "min": 0, "max": 5 },
+          "good": { "min": 6, "max": 15 },
+          "poor": { "min": 16, "max": 100 }
+        }
+      },
+      "scoring_logic": "combined_conditions",
+      "recommendations": {
+        "no_pipelines": "Set up sales pipelines for different deal types or regions",
+        "unassigned_deals": "Implement deal assignment rules and ownership tracking",
+        "good_sales_ops": "Consider advanced sales automation and forecasting"
+      },
+      "critical_issues": {
+        "no_pipeline": "No sales pipelines configured - process management missing",
+        "many_unassigned": "High percentage of unassigned deals - accountability issues"
+      }
+    }
+  },
+  "permission_requirements": {
+    "admin": ["settings.users.read", "integrations.read"],
+    "properties": ["crm.schemas.contacts.read", "crm.schemas.companies.read", "crm.schemas.deals.read"],
+    "workflows": ["automation.workflows.read"],
+    "forms": ["forms.read"],
+    "reporting": ["reports.read"],
+    "sales": ["crm.schemas.deals.read", "crm.pipelines.read"]
+  },
+  "graceful_fallbacks": {
+    "insufficient_permissions": {
+      "message": "Insufficient permissions to analyze this category",
+      "action": "Request additional API scopes",
+      "impact": "Category excluded from overall score calculation"
+    },
+    "api_error": {
+      "message": "Unable to retrieve data for this category",
+      "action": "Check API connectivity and permissions",
+      "impact": "Category marked as unavailable"
+    },
+    "no_data": {
+      "message": "No data found for this category",
+      "action": "Verify HubSpot setup and data availability",
+      "impact": "Category receives minimum score with explanation"
+    }
+  }
+}
