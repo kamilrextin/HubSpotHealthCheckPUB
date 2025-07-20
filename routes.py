@@ -130,9 +130,19 @@ def run_audit():
         ai_enhancements = ai_analyzer.generate_comprehensive_report(audit_results)
         audit_results.update(ai_enhancements)
         
-        # Implement email gate
-        from email_gate import require_email_for_results
-        return require_email_for_results(audit_results)
+        # Store results in session and redirect to email gate
+        session['pending_audit_results'] = audit_results
+        
+        # Check if user already provided email in this session
+        if session.get('user_email'):
+            # Save results and show directly
+            from email_gate import save_audit_results
+            audit_record = save_audit_results(session['user_email'], audit_results)
+            if audit_record:
+                return redirect(url_for('show_results', audit_id=audit_record.id))
+        
+        # Redirect to email capture
+        return redirect(url_for('email_capture'))
         
     except Exception as e:
         logging.error(f"Audit error: {str(e)}")
@@ -175,7 +185,9 @@ def email_capture():
         # Create or get user
         user = User.query.filter_by(email=email).first()
         if not user:
-            user = User(email=email, company_name=company_name)
+            user = User()
+            user.email = email
+            user.company_name = company_name
             db.session.add(user)
             db.session.commit()
         
@@ -187,11 +199,10 @@ def email_capture():
         pending_results = session.get('pending_audit_results')
         if pending_results:
             # Save audit results
-            audit_record = AuditResult(
-                user_id=user.id,
-                overall_score=pending_results.get('overall_score', 0),
-                overall_grade=pending_results.get('overall_grade', 'F')
-            )
+            audit_record = AuditResult()
+            audit_record.user_id = user.id
+            audit_record.overall_score = pending_results.get('overall_score', 0)
+            audit_record.overall_grade = pending_results.get('overall_grade', 'F')
             audit_record.set_results_dict(pending_results)
             db.session.add(audit_record)
             db.session.commit()
