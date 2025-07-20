@@ -105,18 +105,66 @@ class PDFGenerator:
             if category in audit_results and isinstance(audit_results[category], dict):
                 story.extend(self._generate_category_section(category_names[category], audit_results[category]))
         
-        # Recommendations summary
-        story.append(Paragraph("Key Recommendations", self.styles['SectionHeader']))
-        all_recommendations = []
+        # AI-Enhanced Summary Section
+        if 'ai_summary' in audit_results:
+            story.append(Paragraph("Executive Summary", self.styles['SectionHeader']))
+            story.append(Paragraph(audit_results['ai_summary'], self.styles['Normal']))
+            story.append(Spacer(1, 20))
+        
+        # AI Strategic Recommendations
+        if 'ai_recommendations' in audit_results and audit_results['ai_recommendations']:
+            story.append(Paragraph("Strategic Recommendations", self.styles['SectionHeader']))
+            for i, recommendation in enumerate(audit_results['ai_recommendations'], 1):
+                story.append(Paragraph(f"{i}. {recommendation}", self.styles['Normal']))
+            story.append(Spacer(1, 20))
+        
+        # Action Plan
+        if 'action_plan' in audit_results and audit_results['action_plan']:
+            story.append(Paragraph("Prioritized Action Plan", self.styles['SectionHeader']))
+            action_table_data = [['Priority', 'Action', 'Timeline', 'Impact']]
+            
+            for action in audit_results['action_plan'][:8]:  # Top 8 actions
+                priority = action.get('priority', 'Medium')
+                description = action.get('description', 'Action item')
+                timeline = action.get('timeline', 'Short-term')
+                impact = action.get('impact', 'Medium')
+                action_table_data.append([priority, description, timeline, impact])
+            
+            action_table = Table(action_table_data, colWidths=[1*inch, 3*inch, 1.2*inch, 1*inch])
+            action_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), blue),
+                ('TEXTCOLOR', (0, 0), (-1, 0), Color(1, 1, 1)),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), Color(0.95, 0.95, 0.95)),
+                ('GRID', (0, 0), (-1, -1), 1, Color(0, 0, 0)),
+                ('FONTSIZE', (0, 1), (-1, -1), 9),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP')
+            ]))
+            
+            story.append(action_table)
+            story.append(Spacer(1, 20))
+        
+        # Risk Assessment
+        if 'risk_assessment' in audit_results:
+            story.append(Paragraph("Risk Assessment", self.styles['SectionHeader']))
+            story.append(Paragraph(audit_results['risk_assessment'], self.styles['Normal']))
+            story.append(Spacer(1, 20))
+        
+        # Traditional Recommendations as backup
+        traditional_recommendations = []
         for category in categories:
             if category in audit_results and isinstance(audit_results[category], dict):
                 recommendations = audit_results[category].get('recommendations', [])
-                all_recommendations.extend(recommendations)
+                traditional_recommendations.extend(recommendations)
         
-        for i, recommendation in enumerate(all_recommendations[:10], 1):  # Top 10 recommendations
-            story.append(Paragraph(f"{i}. {recommendation}", self.styles['Normal']))
-        
-        story.append(Spacer(1, 20))
+        if traditional_recommendations and 'ai_recommendations' not in audit_results:
+            story.append(Paragraph("Key Recommendations", self.styles['SectionHeader']))
+            for i, recommendation in enumerate(traditional_recommendations[:10], 1):
+                story.append(Paragraph(f"{i}. {recommendation}", self.styles['Normal']))
+            story.append(Spacer(1, 20))
         
         # Footer
         story.append(Paragraph("For questions about this audit or to schedule a strategy consultation, please contact our team.", self.styles['Normal']))

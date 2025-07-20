@@ -100,7 +100,7 @@ def oauth_callback():
 
 @app.route('/audit')
 def run_audit():
-    """Run the HubSpot audit and display results"""
+    """Run the HubSpot audit and display results with email gate"""
     try:
         # Check if user is authenticated
         if 'hubspot_token' not in session:
@@ -117,22 +117,95 @@ def run_audit():
         if workflows_direct:
             logging.debug(f"First workflow sample: {workflows_direct[0].keys() if workflows_direct else 'None'}")
         
-        # Run the audit
+        # Run the enhanced audit
         audit_results = audit_engine.run_full_audit()
         
         if not audit_results:
             flash('Failed to run audit. Please check your HubSpot permissions.', 'error')
             return redirect(url_for('index'))
         
-        # Store results in session for PDF generation
-        session['audit_results'] = audit_results
+        # Add AI enhancements
+        from ai_analyzer import AIAnalyzer
+        ai_analyzer = AIAnalyzer()
+        ai_enhancements = ai_analyzer.generate_comprehensive_report(audit_results)
+        audit_results.update(ai_enhancements)
         
-        return render_template('dashboard.html', results=audit_results)
+        # Implement email gate
+        from email_gate import require_email_for_results
+        return require_email_for_results(audit_results)
         
     except Exception as e:
         logging.error(f"Audit error: {str(e)}")
         flash('Error running audit. Please try again or check your HubSpot connection.', 'error')
         return redirect(url_for('index'))
+
+@app.route('/results/<int:audit_id>')
+def show_results(audit_id):
+    """Show audit results after email capture"""
+    try:
+        from models import AuditResult
+        audit_record = AuditResult.query.get_or_404(audit_id)
+        
+        # Check if user has access (either same session or same email)
+        user_email = session.get('user_email')
+        if not user_email or audit_record.user.email != user_email:
+            flash('Access denied to these audit results', 'error')
+            return redirect(url_for('index'))
+        
+        results = audit_record.get_results_dict()
+        return render_template('dashboard.html', results=results, audit_record=audit_record)
+        
+    except Exception as e:
+        logging.error(f"Results display error: {str(e)}")
+        flash('Error displaying results', 'error')
+        return redirect(url_for('index'))
+
+@app.route('/email_capture', methods=['GET', 'POST'])
+def email_capture():
+    """Handle email capture form submission"""
+    from email_gate import EmailCaptureForm
+    from models import User, AuditResult, db
+    
+    form = EmailCaptureForm()
+    
+    if form.validate_on_submit():
+        email = form.email.data.lower().strip()
+        company_name = form.company_name.data.strip() if form.company_name.data else None
+        
+        # Create or get user
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            user = User(email=email, company_name=company_name)
+            db.session.add(user)
+            db.session.commit()
+        
+        # Store email in session
+        session['user_email'] = email
+        session['user_id'] = user.id
+        
+        # Get pending results from session
+        pending_results = session.get('pending_audit_results')
+        if pending_results:
+            # Save audit results
+            audit_record = AuditResult(
+                user_id=user.id,
+                overall_score=pending_results.get('overall_score', 0),
+                overall_grade=pending_results.get('overall_grade', 'F')
+            )
+            audit_record.set_results_dict(pending_results)
+            db.session.add(audit_record)
+            db.session.commit()
+            
+            # Clean up session
+            session.pop('pending_audit_results', None)
+            
+            flash('Thanks! Your audit results are ready.', 'success')
+            return redirect(url_for('show_results', audit_id=audit_record.id))
+        else:
+            flash('No pending audit results found. Please run a new audit.', 'warning')
+            return redirect(url_for('index'))
+    
+    return render_template('email_gate.html', form=form)
 
 @app.route('/export/pdf')
 def export_pdf():
