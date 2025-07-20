@@ -124,25 +124,11 @@ def run_audit():
             flash('Failed to run audit. Please check your HubSpot permissions.', 'error')
             return redirect(url_for('index'))
         
-        # Add AI enhancements
-        from ai_analyzer import AIAnalyzer
-        ai_analyzer = AIAnalyzer()
-        ai_enhancements = ai_analyzer.generate_comprehensive_report(audit_results)
-        audit_results.update(ai_enhancements)
+        # Store results in session for potential full report access
+        session['audit_results'] = audit_results
         
-        # Store results in session and redirect to email gate
-        session['pending_audit_results'] = audit_results
-        
-        # Check if user already provided email in this session
-        if session.get('user_email'):
-            # Save results and show directly
-            from email_gate import save_audit_results
-            audit_record = save_audit_results(session['user_email'], audit_results)
-            if audit_record:
-                return redirect(url_for('show_results', audit_id=audit_record.id))
-        
-        # Redirect to email capture
-        return redirect(url_for('email_capture'))
+        # Show basic results immediately (no email required)
+        return render_template('dashboard.html', results=audit_results, show_preview=True)
         
     except Exception as e:
         logging.error(f"Audit error: {str(e)}")
@@ -163,12 +149,67 @@ def show_results(audit_id):
             return redirect(url_for('index'))
         
         results = audit_record.get_results_dict()
-        return render_template('dashboard.html', results=results, audit_record=audit_record)
+        return render_template('dashboard.html', results=results, audit_record=audit_record, show_preview=False)
         
     except Exception as e:
         logging.error(f"Results display error: {str(e)}")
         flash('Error displaying results', 'error')
         return redirect(url_for('index'))
+
+@app.route('/unlock_full_report', methods=['POST'])
+def unlock_full_report():
+    """Handle email submission to unlock full AI-enhanced report"""
+    try:
+        email = request.form.get('email', '').lower().strip()
+        if not email:
+            flash('Please enter a valid email address', 'error')
+            return redirect(request.referrer or url_for('index'))
+        
+        from models import User, AuditResult, db
+        
+        # Create or get user
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            user = User()
+            user.email = email
+            db.session.add(user)
+            db.session.commit()
+        
+        # Store email in session
+        session['user_email'] = email
+        session['user_id'] = user.id
+        
+        # Get audit results from session
+        audit_results = session.get('audit_results')
+        if not audit_results:
+            flash('No audit results found. Please run a new audit.', 'warning')
+            return redirect(url_for('index'))
+        
+        # Add AI enhancements now that user provided email
+        from ai_analyzer import AIAnalyzer
+        ai_analyzer = AIAnalyzer()
+        ai_enhancements = ai_analyzer.generate_comprehensive_report(audit_results)
+        audit_results.update(ai_enhancements)
+        
+        # Save enhanced results to database
+        audit_record = AuditResult()
+        audit_record.user_id = user.id
+        audit_record.overall_score = audit_results.get('overall_score', 0)
+        audit_record.overall_grade = audit_results.get('overall_grade', 'F')
+        audit_record.set_results_dict(audit_results)
+        db.session.add(audit_record)
+        db.session.commit()
+        
+        # Update session with enhanced results
+        session['audit_results'] = audit_results
+        
+        flash('Thanks! Your complete AI-enhanced report is ready.', 'success')
+        return redirect(url_for('show_results', audit_id=audit_record.id))
+        
+    except Exception as e:
+        logging.error(f"Unlock report error: {str(e)}")
+        flash('Error processing your request. Please try again.', 'error')
+        return redirect(request.referrer or url_for('index'))
 
 @app.route('/email_capture', methods=['GET', 'POST'])
 def email_capture():

@@ -1,0 +1,42 @@
+<!-- Email Gate Section for Full Report Access -->
+<div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-8 text-center mt-8">
+    <div class="mb-6">
+        <i class="bi bi-lock text-4xl text-blue-600 mb-4"></i>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">Get Your Complete Analysis</h3>
+        <p class="text-gray-600 mb-6">Enter your email to unlock AI-powered insights, detailed recommendations, and download your professional PDF report.</p>
+    </div>
+    
+    <!-- Benefits Grid -->
+    <div class="grid md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-lg p-4 shadow-sm">
+            <i class="bi bi-robot text-2xl text-blue-600 mb-2"></i>
+            <h4 class="font-semibold text-gray-900 mb-1">AI Analysis</h4>
+            <p class="text-sm text-gray-600">Strategic recommendations tailored to your setup</p>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm">
+            <i class="bi bi-list-check text-2xl text-green-600 mb-2"></i>
+            <h4 class="font-semibold text-gray-900 mb-1">Action Plan</h4>
+            <p class="text-sm text-gray-600">Prioritized steps to improve your HubSpot</p>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm">
+            <i class="bi bi-file-earmark-pdf text-2xl text-red-600 mb-2"></i>
+            <h4 class="font-semibold text-gray-900 mb-1">PDF Report</h4>
+            <p class="text-sm text-gray-600">Professional report for your team</p>
+        </div>
+    </div>
+    
+    <!-- Email Form -->
+    <form method="POST" action="{{ url_for('unlock_full_report') }}" class="max-w-md mx-auto">
+        <div class="flex gap-3">
+            <input type="email" name="email" placeholder="your@email.com" required 
+                   class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <button type="submit" 
+                    class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
+                Unlock Report
+            </button>
+        </div>
+        <p class="text-xs text-gray-500 mt-3">
+            No spam. Unsubscribe anytime. We respect your privacy.
+        </p>
+    </form>
+</div>
