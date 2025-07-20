@@ -234,8 +234,13 @@ class AuditEngine:
             }
             
         except Exception as e:
-            logging.error(f"Workflows audit error: {str(e)}")
-            return self._empty_category_result()
+            error_msg = str(e).lower()
+            if "403" in error_msg or "permission" in error_msg or "scope" in error_msg:
+                logging.error(f"Workflows audit permission error: {str(e)}")
+                return self._empty_category_result("insufficient_permissions")
+            else:
+                logging.error(f"Workflows audit error: {str(e)}")
+                return self._empty_category_result("api_error")
     
     def _audit_forms(self) -> Dict:
         """Audit forms configuration"""

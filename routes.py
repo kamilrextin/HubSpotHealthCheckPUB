@@ -110,6 +110,13 @@ def run_audit():
         hubspot = HubSpotService(session['hubspot_token'])
         audit_engine = AuditEngine(hubspot)
         
+        # Debug: Test workflow fetching directly
+        logging.debug("=== Testing workflow API directly ===")
+        workflows_direct = hubspot.get_workflows()
+        logging.debug(f"Direct workflow API test found: {len(workflows_direct)} workflows")
+        if workflows_direct:
+            logging.debug(f"First workflow sample: {workflows_direct[0].keys() if workflows_direct else 'None'}")
+        
         # Run the audit
         audit_results = audit_engine.run_full_audit()
         
