@@ -186,6 +186,77 @@ class HubSpotService:
             logging.error(f"Error fetching forms: {str(e)}")
             return []
     
+    def get_form_submissions(self, form_id: str, days_back: int = 30) -> Dict:
+        """Get form submission statistics for a specific form"""
+        try:
+            # Get submissions for the last X days
+            import datetime
+            end_date = datetime.datetime.now()
+            start_date = end_date - datetime.timedelta(days=days_back)
+            
+            params = {
+                'formId': form_id,
+                'after': int(start_date.timestamp() * 1000),  # HubSpot uses milliseconds
+                'before': int(end_date.timestamp() * 1000)
+            }
+            
+            data = self._make_api_call('/form-integrations/v1/submissions/forms', params)
+            return {
+                'submissions_count': len(data.get('results', [])) if data else 0,
+                'form_id': form_id,
+                'period_days': days_back
+            }
+        except Exception as e:
+            logging.debug(f"Error fetching form submissions for {form_id}: {str(e)}")
+            return {'submissions_count': 0, 'form_id': form_id, 'period_days': days_back}
+    
+    def analyze_form_field_usage(self, forms: List[Dict]) -> Dict:
+        """Analyze which fields are commonly used across forms"""
+        try:
+            field_usage = {}
+            total_forms = len(forms)
+            
+            for form in forms:
+                form_fields = form.get('formFieldGroups', [])
+                for field_group in form_fields:
+                    fields = field_group.get('fields', [])
+                    for field in fields:
+                        field_name = field.get('name', '')
+                        field_type = field.get('fieldType', '')
+                        
+                        if field_name and field_type:
+                            key = f"{field_name}_{field_type}"
+                            if key not in field_usage:
+                                field_usage[key] = {
+                                    'name': field_name,
+                                    'type': field_type,
+                                    'forms_using': [],
+                                    'usage_count': 0
+                                }
+                            
+                            field_usage[key]['forms_using'].append(form.get('name', 'Unknown'))
+                            field_usage[key]['usage_count'] += 1
+            
+            # Calculate usage percentages and find common fields
+            common_fields = []
+            for field_key, field_data in field_usage.items():
+                usage_percentage = (field_data['usage_count'] / total_forms * 100) if total_forms > 0 else 0
+                field_data['usage_percentage'] = round(usage_percentage, 1)
+                
+                # Fields used in 50%+ of forms could indicate consolidation opportunities
+                if usage_percentage >= 50 and field_data['usage_count'] > 1:
+                    common_fields.append(field_data)
+            
+            return {
+                'total_unique_fields': len(field_usage),
+                'common_fields': common_fields,
+                'field_usage_details': field_usage
+            }
+            
+        except Exception as e:
+            logging.error(f"Error analyzing form field usage: {str(e)}")
+            return {'total_unique_fields': 0, 'common_fields': [], 'field_usage_details': {}}
+    
     def get_dashboards(self) -> List[Dict]:
         """Get all dashboards"""
         try:

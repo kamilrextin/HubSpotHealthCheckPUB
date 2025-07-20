@@ -10,6 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (July 2025)
 
+### Forms Grading Enhancement (July 20, 2025)
+- **Sophisticated Usage-Based Analysis**: Forms now graded based on actual usage data rather than just existence
+- **30-Day Submission Tracking**: Analyzes form submissions over last 30 days to identify unused forms
+- **Field Consolidation Detection**: Identifies common field sets across forms to highlight consolidation opportunities
+- **Enhanced Scoring Algorithm**: Adjusts scores based on actual form performance (submissions vs zero usage)
+- **Improved Recommendations**: Provides specific actionable advice based on usage patterns
+- **Critical Issue Detection**: Flags forms with zero submissions and major lead capture failures
+
 ### OAuth Authentication Enhancement
 - Successfully implemented OAuth "Login with HubSpot" authentication
 - Fixed scope configuration issues by matching exact HubSpot API requirements
@@ -65,10 +73,11 @@ The system evaluates six key areas with equal weighting (16.7% each):
 - **Good (3.5)**: 2-4 workflows, 11-25% inactive
 - **Poor (2.0)**: 0-1 workflows, 26%+ inactive
 
-### Forms (16.7%)
-- **Excellent (5.0)**: 3+ forms, 0-20% unembedded
-- **Good (3.5)**: 1-2 forms, 21-40% unembedded
-- **Poor (2.0)**: 0 forms, 41%+ unembedded
+### Forms (16.7%) - Enhanced with Usage Analytics
+- **Excellent (5.0)**: 3+ forms, 0-20% unembedded, 0-20% unused (based on 30-day submissions)
+- **Good (3.5)**: 1-2 forms, 21-40% unembedded, 21-50% unused forms
+- **Poor (2.0)**: 0 forms, 41%+ unembedded, 50%+ unused forms
+- **Usage Factors**: Form submission tracking, field consolidation opportunities, lead capture effectiveness
 
 ### Reporting (16.7%)
 - **Excellent (5.0)**: 2+ dashboards, 1+ custom reports

@@ -243,21 +243,66 @@ class AuditEngine:
                 return self._empty_category_result("api_error")
     
     def _audit_forms(self) -> Dict:
-        """Audit forms configuration"""
+        """Audit forms configuration with usage-based analysis"""
         try:
             forms = self.hubspot.get_forms()
+            logging.debug(f"Forms audit: {len(forms)} forms retrieved")
             
             total_forms = len(forms)
+            if total_forms == 0:
+                return {
+                    'score': 2.0,
+                    'grade': 'D',
+                    'metrics': {'total_forms': 0, 'embedded_forms': 0, 'unembedded_forms': 0, 'unembedded_percentage': 0},
+                    'recommendations': ['Create forms to capture leads effectively'],
+                    'critical_issues': ['No forms found - lead capture system missing']
+                }
+            
+            # Basic form status analysis
             embedded_forms = [form for form in forms if form.get('isPublished', False)]
             unembedded_forms = [form for form in forms if not form.get('isPublished', False)]
-            
             unembedded_percentage = (len(unembedded_forms) / total_forms * 100) if total_forms > 0 else 0
+            
+            # Enhanced usage analysis - check form submissions over last 30 days
+            forms_with_submissions = []
+            forms_without_submissions = []
+            total_submissions_checked = 0
+            
+            # Sample up to 10 forms for submission analysis (to avoid API rate limits)
+            forms_to_analyze = forms[:10] if len(forms) > 10 else forms
+            
+            for form in forms_to_analyze:
+                form_id = form.get('guid') or form.get('id')
+                if form_id:
+                    submission_data = self.hubspot.get_form_submissions(form_id, days_back=30)
+                    submissions_count = submission_data.get('submissions_count', 0)
+                    total_submissions_checked += 1
+                    
+                    if submissions_count > 0:
+                        forms_with_submissions.append({
+                            'name': form.get('name', 'Unknown'),
+                            'submissions': submissions_count
+                        })
+                    else:
+                        forms_without_submissions.append(form.get('name', 'Unknown'))
+            
+            # Calculate unused forms percentage based on submissions
+            unused_forms_percentage = (len(forms_without_submissions) / total_submissions_checked * 100) if total_submissions_checked > 0 else 0
+            
+            # Analyze field usage across forms
+            field_analysis = self.hubspot.analyze_form_field_usage(forms)
             
             metrics = {
                 'total_forms': total_forms,
                 'embedded_forms': len(embedded_forms),
                 'unembedded_forms': len(unembedded_forms),
-                'unembedded_percentage': round(unembedded_percentage, 1)
+                'unembedded_percentage': round(unembedded_percentage, 1),
+                'forms_with_recent_submissions': len(forms_with_submissions),
+                'forms_without_submissions': len(forms_without_submissions),
+                'unused_forms_percentage': round(unused_forms_percentage, 1),
+                'common_fields_count': len(field_analysis.get('common_fields', [])),
+                'total_unique_fields': field_analysis.get('total_unique_fields', 0),
+                'forms_analyzed_for_usage': total_submissions_checked
             }
             
             score = self._calculate_forms_score(metrics)
@@ -380,19 +425,34 @@ class AuditEngine:
             return 2.0
     
     def _calculate_forms_score(self, metrics: Dict) -> float:
-        """Calculate score for forms category"""
+        """Calculate score for forms category with enhanced usage-based scoring"""
         total = metrics['total_forms']
         unembedded_percentage = metrics['unembedded_percentage']
-        thresholds = self.scoring_thresholds['forms']
+        unused_forms_percentage = metrics.get('unused_forms_percentage', 0)
         
-        if (total >= thresholds['excellent']['total'][0] and
-            unembedded_percentage <= thresholds['excellent']['unembedded_percentage'][1]):
-            return 5.0
-        elif (thresholds['good']['total'][0] <= total <= thresholds['good']['total'][1] and
-              unembedded_percentage <= thresholds['good']['unembedded_percentage'][1]):
-            return 3.5
-        else:
-            return 2.0
+        # Base score from traditional metrics
+        base_score = 2.0
+        if total >= 3 and unembedded_percentage <= 20:
+            base_score = 5.0
+        elif total >= 1 and unembedded_percentage <= 40:
+            base_score = 3.5
+        
+        # Adjust score based on actual usage (submissions)
+        usage_adjustment = 0
+        if unused_forms_percentage <= 20:  # 20% or less unused forms
+            usage_adjustment = 0.5
+        elif unused_forms_percentage <= 50:  # 21-50% unused forms
+            usage_adjustment = 0.0
+        else:  # 50%+ unused forms
+            usage_adjustment = -1.0
+        
+        # Adjust for field consolidation opportunities
+        common_fields_count = metrics.get('common_fields_count', 0)
+        if common_fields_count > 3:  # Many repeated fields indicate consolidation opportunity
+            usage_adjustment -= 0.3
+        
+        final_score = max(1.0, min(5.0, base_score + usage_adjustment))
+        return round(final_score, 1)
     
     def _calculate_reporting_score(self, metrics: Dict) -> float:
         """Calculate score for reporting category"""
@@ -510,19 +570,55 @@ class AuditEngine:
         return issues
     
     def _get_forms_recommendations(self, metrics: Dict) -> List[str]:
-        """Get recommendations for forms category"""
+        """Get enhanced recommendations for forms category based on usage analysis"""
         recommendations = []
+        
+        # Basic form count recommendations
         if metrics['total_forms'] < 3:
             recommendations.append("Create more forms to capture leads effectively")
+        
+        # Publishing recommendations  
         if metrics['unembedded_percentage'] > 40:
             recommendations.append("Embed or publish more forms to maximize lead capture")
+        
+        # Usage-based recommendations
+        unused_percentage = metrics.get('unused_forms_percentage', 0)
+        if unused_percentage > 50:
+            recommendations.append("Remove or optimize forms with zero submissions in the last 30 days")
+        elif unused_percentage > 25:
+            recommendations.append("Review forms with low submission rates and improve promotion")
+        
+        # Field consolidation recommendations
+        common_fields_count = metrics.get('common_fields_count', 0)
+        if common_fields_count > 3:
+            recommendations.append("Consolidate forms using similar field sets to reduce redundancy")
+        
+        # Performance optimization
+        forms_with_submissions = metrics.get('forms_with_recent_submissions', 0)
+        if forms_with_submissions > 0:
+            recommendations.append("Analyze top-performing forms and apply insights to improve others")
+        
         return recommendations
     
     def _get_forms_critical_issues(self, metrics: Dict) -> List[str]:
-        """Get critical issues for forms category"""
+        """Get critical issues for forms category with usage analysis"""
         issues = []
+        
         if metrics['total_forms'] == 0:
             issues.append("No forms found - lead capture system missing")
+        
+        # Usage-based critical issues
+        unused_percentage = metrics.get('unused_forms_percentage', 0)
+        if unused_percentage >= 80:
+            issues.append("80%+ of forms have zero submissions - major lead capture failure")
+        
+        if metrics.get('forms_with_recent_submissions', 0) == 0 and metrics['total_forms'] > 0:
+            issues.append("No form submissions in the last 30 days - forms not generating leads")
+        
+        # Publishing critical issues
+        if metrics['unembedded_percentage'] >= 80 and metrics['total_forms'] > 0:
+            issues.append("80%+ of forms are unpublished - lead capture not deployed")
+        
         return issues
     
     def _get_reporting_recommendations(self, metrics: Dict) -> List[str]:
