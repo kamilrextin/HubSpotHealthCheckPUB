@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Direct Token Access - HubSpot Audit Tool{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Enter Your HubSpot Access Token</h1>
+        <p class="text-xl text-gray-600">
+            If you already have a HubSpot access token, you can use it directly to run your audit.
+        </p>
+    </div>
+
+    <!-- Token Input Form -->
+    <div class="bg-white rounded-lg shadow-sm border p-8">
+        <form method="POST" action="{{ url_for('token_auth') }}" class="space-y-6">
+            <div>
+                <label for="access_token" class="block text-sm font-medium text-gray-700 mb-2">
+                    HubSpot Access Token
+                </label>
+                <textarea 
+                    id="access_token" 
+                    name="access_token" 
+                    rows="4" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter your HubSpot access token here..."
+                    required></textarea>
+                <p class="mt-2 text-sm text-gray-500">
+                    Your access token should start with "pat-na1-" or "pat-eu1-" followed by a long string of characters.
+                </p>
+            </div>
+
+            <div class="flex space-x-4">
+                <button 
+                    type="submit" 
+                    class="flex-1 bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-semibold transition duration-200">
+                    <i class="bi bi-check-circle mr-2"></i>
+                    Use This Token
+                </button>
+                <a 
+                    href="{{ url_for('index') }}" 
+                    class="flex-1 bg-gray-600 text-white py-3 px-4 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 font-semibold transition duration-200 text-center">
+                    <i class="bi bi-arrow-left mr-2"></i>
+                    Back to Home
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-blue-900 mb-3">
+            <i class="bi bi-info-circle mr-2"></i>
+            How to Get Your Access Token
+        </h3>
+        <div class="text-blue-800 space-y-2">
+            <p><strong>Method 1: HubSpot Private App</strong></p>
+            <ol class="list-decimal list-inside space-y-1 ml-4">
+                <li>Go to your HubSpot account settings</li>
+                <li>Navigate to "Integrations" → "Private Apps"</li>
+                <li>Create a new private app or use an existing one</li>
+                <li>Grant the necessary scopes (contacts, companies, deals, workflows, forms, reports)</li>
+                <li>Copy the generated access token</li>
+            </ol>
+            
+            <p class="mt-4"><strong>Method 2: OAuth Flow</strong></p>
+            <p>If you prefer the standard OAuth flow, <a href="{{ url_for('oauth_authorize') }}" class="text-blue-600 underline">click here to authenticate with HubSpot</a>.</p>
+        </div>
+    </div>
+
+    <!-- Security Notice -->
+    <div class="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <div class="flex items-start space-x-2">
+            <i class="bi bi-shield-check text-green-600 mt-1"></i>
+            <div class="text-sm text-gray-700">
+                <p><strong>Security Notice:</strong> Your access token is stored temporarily in your browser session and is never saved permanently. It's only used to fetch data from HubSpot for the audit analysis.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

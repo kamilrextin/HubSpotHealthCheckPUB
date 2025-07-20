@@ -11,6 +11,21 @@ def index():
     """Home page with audit initiation"""
     return render_template('index.html')
 
+@app.route('/token-auth', methods=['GET', 'POST'])
+def token_auth():
+    """Direct token authentication for users who already have access tokens"""
+    if request.method == 'POST':
+        token = request.form.get('access_token')
+        if token:
+            # Store token in session
+            session['hubspot_token'] = token
+            flash('Access token saved successfully!', 'success')
+            return redirect(url_for('run_audit'))
+        else:
+            flash('Please provide a valid access token', 'error')
+    
+    return render_template('token_auth.html')
+
 @app.route('/oauth/authorize')
 def oauth_authorize():
     """Redirect to HubSpot OAuth authorization"""
